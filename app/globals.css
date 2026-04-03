@@ -1298,13 +1298,13 @@
   }
 
   select, textarea, input:not([type="button"], [type="reset"], [type="submit"]) {
-    @apply bg-background text-foreground placeholder:text-muted-foreground placeholder:opacity-50 focus:border-ring focus:ring-1 focus:ring-ring/50;
+    @apply placeholder:text-muted-foreground placeholder:opacity-50 focus:border-ring focus:ring-1 focus:ring-ring/50;
 
-    :user-invalid {
+    &:user-invalid {
       @apply border-destructive;
     }
 
-    :user-valid {
+    &:user-valid {
       @apply border-success;
     }
   }
@@ -1494,6 +1494,14 @@
       transform: translateY(0);
     }
   }
+}
+
+/* Unlayered so it beats UA styles for form controls */
+select,
+textarea,
+input:not([type="button"], [type="reset"], [type="submit"]) {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }
 
 .hl-sr-only,

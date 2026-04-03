@@ -72,7 +72,7 @@ function SidebarUser() {
     <Collapsible className="p-0">
       <CollapsibleTrigger asChild className="p-0">
         <Button
-          variant="ghost"
+          variant="link"
           className="flex place-content-stretch place-items-center h-full p-0 gap-2 text-left text-xs font-thin"
           role="tab"
         >
@@ -147,7 +147,7 @@ export function Sidebar({ sections }: { sections?: SectionsType }) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarUser />
