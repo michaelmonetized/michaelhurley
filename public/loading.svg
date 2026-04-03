@@ -1,0 +1,66 @@
+<svg
+  id="loading-spinner"
+  viewBox="0 0 100 100"
+  width="256px"
+  height="256px"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  shape-rendering="geometricPrecision"
+  text-rendering="geometricPrecision"
+>
+  <defs>
+    <style>
+      #loading-spinner {
+        animation: loading-spin 5s linear infinite;
+      }
+
+      #outer-spin {
+        stroke-linecap: round;
+        transform-origin: center;
+        animation: loading-spin 15s ease-in-out infinite;
+      }
+
+      #outer-spin circle {
+        fill: none;
+        stroke: #94e4ffff;
+        stroke-width: 10;
+        stroke-dasharray: calc(3.14 * 1 * 40 / 4);
+        stroke-dashoffset: calc(3.14 * 1 * 40 / 4);
+        animation: loading-draw 4s ease-in-out infinite alternate,
+          loading-spin 1s ease-in-out,
+          loading-dash 6s ease-in-out infinite alternate;
+        transform-origin: center;
+      }
+
+      #outer-spin circle#two {
+        stroke: #ff94bbff;
+        animation: loading-draw 6s ease-in-out infinite alternate,
+          loading-spin 2s ease-in-out,
+          loading-dash 4s ease-in-out infinite alternate;
+      }
+
+      @keyframes loading-draw {
+        to {
+          stroke-dashoffset: calc(2 * pi * 40);
+        }
+      }
+
+      @keyframes loading-dash {
+        to {
+          stroke-dasharray: calc(2 * pi * 40);
+        }
+      }
+
+      @keyframes loading-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </defs>
+
+  <g id="outer-spin">
+    <circle id="one" cx="50" cy="50" r="40" />
+    <circle id="two" cx="50" cy="50" r="40" />
+  </g>
+</svg>
