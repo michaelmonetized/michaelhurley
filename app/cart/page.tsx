@@ -21,7 +21,6 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------ */
 /*  Types & initial data                                               */

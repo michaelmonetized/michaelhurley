@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/field";
 import { Form } from "@base-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
 
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 7); // 7am–8pm
@@ -48,7 +48,7 @@ export default function TimeInputExample() {
     defaultValues: { time: "" },
   });
 
-  const selectedTime = form.watch("time");
+  const selectedTime = useWatch({ control: form.control, name: "time" });
 
   function handleSlotClick(hour: number, minutes: number) {
     const value = `${pad(hour)}:${pad(minutes)}`;

@@ -11,7 +11,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Form } from "@base-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
 
 const formSchema = z.object({
@@ -27,7 +27,7 @@ export default function SliderExample() {
     defaultValues: { range: [20, 70] },
   });
 
-  const range = form.watch("range");
+  const range = useWatch({ control: form.control, name: "range" });
 
   function onSubmit(data: z.infer<typeof formSchema>) {
     toast.success("Budget range saved", {

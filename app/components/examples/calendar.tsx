@@ -14,7 +14,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Separator } from "@/components/ui/separator";
 import { Form } from "@base-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
 
 type View = "day" | "week" | "month" | "year";
@@ -235,7 +235,7 @@ export default function CalendarExample() {
     defaultValues: { date: undefined },
   });
 
-  const selectedDate = form.watch("date");
+  const selectedDate = useWatch({ control: form.control, name: "date" });
 
   function handleDateSelect(date: Date | undefined) {
     if (date) {

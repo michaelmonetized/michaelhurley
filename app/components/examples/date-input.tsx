@@ -3,7 +3,6 @@
 import * as React from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Field,
   FieldLabel,
@@ -14,7 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Separator } from "@/components/ui/separator";
 import { Form } from "@base-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 
@@ -263,7 +262,7 @@ export default function DateInputExample() {
     defaultValues: { date: undefined },
   });
 
-  const selectedDate = form.watch("date");
+  const selectedDate = useWatch({ control: form.control, name: "date" });
 
   function handleDateSelect(date: Date | undefined) {
     if (date) {

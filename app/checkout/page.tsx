@@ -18,9 +18,6 @@ import {
   FieldLabel,
   FieldError,
 } from "@/components/ui/field";
-import { cn } from "@/lib/utils";
-
-import { Form } from "@base-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
@@ -96,7 +93,8 @@ export default function CheckoutPage() {
   });
 
   const onSubmit = useCallback(
-    async (_data: CheckoutFormValues) => {
+    async (data: CheckoutFormValues) => {
+      void data;
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Order placed successfully!");
       router.push("/order-complete");

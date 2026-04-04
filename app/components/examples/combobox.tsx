@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/combobox";
 import { Form } from "@base-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
 
 const allItems = [
@@ -52,7 +52,7 @@ export default function ComboboxExample() {
     defaultValues: { components: [] },
   });
 
-  const selected = form.watch("components");
+  const selected = useWatch({ control: form.control, name: "components" });
 
   function onSubmit(data: z.infer<typeof formSchema>) {
     toast.success("Components selected", {
