@@ -5,6 +5,7 @@ import {
   type UIMessage,
 } from "ai";
 import { ACCESSIBILITY_CHAT_SYSTEM_PROMPT } from "@/lib/accessibility-chat-system-prompt";
+import { resolveOpenRouterModelId } from "@/lib/openrouter-resolve-model";
 
 export const maxDuration = 60;
 
@@ -39,9 +40,6 @@ export async function POST(req: Request) {
     return Response.json({ error: "Expected messages array." }, { status: 400 });
   }
 
-  const modelId =
-    process.env.OPENROUTER_MODEL ?? "openrouter/openrouter/free";
-
   const openrouter = createOpenAI({
     baseURL: "https://openrouter.ai/api/v1",
     apiKey,
@@ -51,10 +49,20 @@ export async function POST(req: Request) {
     },
   });
 
+  let modelId: string;
+  try {
+    modelId = await resolveOpenRouterModelId(openrouter);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Model resolution failed.";
+    console.error("[openrouter]", message);
+    return Response.json({ error: message }, { status: 503 });
+  }
+
   const modelMessages = await convertToModelMessages(messages);
 
   const result = streamText({
-    model: openrouter.chat(modelId),
+    // Same pattern as ~/Projects/my-hustle-launch/web/lib/ai.ts — callable provider, not .chat()
+    model: openrouter(modelId),
     system: ACCESSIBILITY_CHAT_SYSTEM_PROMPT,
     messages: modelMessages,
   });
