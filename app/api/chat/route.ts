@@ -61,8 +61,8 @@ export async function POST(req: Request) {
   const modelMessages = await convertToModelMessages(messages);
 
   const result = streamText({
-    // Same pattern as ~/Projects/my-hustle-launch/web/lib/ai.ts — callable provider, not .chat()
-    model: openrouter(modelId),
+    // Callable `openrouter(id)` uses the Responses API; OpenRouter only proxies chat completions.
+    model: openrouter.chat(modelId),
     system: ACCESSIBILITY_CHAT_SYSTEM_PROMPT,
     messages: modelMessages,
   });

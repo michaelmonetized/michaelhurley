@@ -39,7 +39,8 @@ export async function resolveOpenRouterModelId(
   for (const id of candidates) {
     try {
       await generateText({
-        model: openrouter(id),
+        // OpenRouter expects Chat Completions (`/chat/completions`), not OpenAI Responses (`/responses`).
+        model: openrouter.chat(id),
         prompt: ".",
         maxOutputTokens: 1,
       });
