@@ -7,6 +7,7 @@ import {
 import "./globals.css";
 import ColorScheme from "@/components/color-scheme";
 import Accessibility from "@/components/accessibility";
+import LiveChat from "@/components/marketing/live-chat";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const sourceSans = Source_Sans_3({
@@ -34,6 +35,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const accessibilityChatConfigured = Boolean(process.env.OPENROUTER_API_KEY);
+
   return (
     <html
       lang="en"
@@ -44,6 +47,7 @@ export default function RootLayout({
         <ColorScheme>
           <TooltipProvider>
             <Accessibility>{children}</Accessibility>
+            <LiveChat apiConfigured={accessibilityChatConfigured} />
           </TooltipProvider>
         </ColorScheme>
       </body>

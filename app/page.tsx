@@ -7,8 +7,6 @@ import ProductGrid from "@/components/marketing/product-grid";
 import PricingTable from "@/components/marketing/pricing-table";
 import CtaSection from "@/components/marketing/cta-section";
 import ServiceGrid from "@/components/marketing/service-grid";
-import LiveChat from "@/components/marketing/live-chat";
-
 export default function Home() {
   return (
     <Layout variant="default">
@@ -69,8 +67,6 @@ export default function Home() {
       <section className="px-md py-lg">
         <Hero variant="minimal" />
       </section>
-
-      <LiveChat />
     </Layout>
   );
 }
