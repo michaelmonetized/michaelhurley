@@ -8,8 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Toaster } from "@/components/ui/sonner";
-
 // Actions
 import ButtonVariantsExample from "./examples/button-variants";
 import BadgeVariantsExample from "./examples/badge-variants";
@@ -431,7 +429,6 @@ export default function ShadcnPage() {
           </PageSection>
         </main>
       </div>
-      <Toaster richColors />
     </Layout>
   );
 }
