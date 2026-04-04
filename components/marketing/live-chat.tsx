@@ -2,10 +2,7 @@
 
 import * as React from "react";
 import { useChat } from "@ai-sdk/react";
-import {
-  DefaultChatTransport,
-  type UIMessage,
-} from "ai";
+import { DefaultChatTransport, type UIMessage } from "ai";
 import { ArrowClockwiseIcon, CopySimpleIcon } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -43,7 +40,7 @@ const INITIAL_MESSAGES: UIMessage[] = [
 function getMessageText(message: UIMessage): string {
   return message.parts
     .filter(
-      (part): part is { type: "text"; text: string } => part.type === "text"
+      (part): part is { type: "text"; text: string } => part.type === "text",
     )
     .map((part) => part.text)
     .join("");
@@ -75,22 +72,20 @@ function MessageBubble({
   const content = getMessageText(message);
   const isStreaming =
     isAssistant &&
-    message.parts.some(
-      (p) => p.type === "text" && p.state === "streaming"
-    );
+    message.parts.some((p) => p.type === "text" && p.state === "streaming");
   const canRetry = !busy && !isStreaming && content.length > 0;
 
   return (
     <div
       className={cn(
         "flex flex-col gap-1",
-        isAssistant ? "items-start" : "items-end"
+        isAssistant ? "items-start" : "items-end",
       )}
     >
       <div
         className={cn(
           "flex items-start gap-2",
-          isAssistant ? "flex-row" : "flex-row-reverse"
+          isAssistant ? "flex-row" : "flex-row-reverse",
         )}
       >
         <Avatar size="sm">
@@ -99,7 +94,7 @@ function MessageBubble({
               "text-[10px] font-bold",
               isAssistant
                 ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+                : "bg-muted text-muted-foreground",
             )}
             aria-hidden
           >
@@ -112,12 +107,23 @@ function MessageBubble({
             "max-w-[min(100%,18rem)] rounded-none px-3 py-2 text-xs leading-relaxed",
             isAssistant
               ? "bg-muted text-foreground"
-              : "bg-primary text-primary-foreground"
+              : "bg-primary text-primary-foreground",
           )}
         >
-          <p className="whitespace-pre-wrap break-words">{content}</p>
+          <p className="whitespace-pre-wrap wrap-break-word">{content}</p>
+          {busy && (
+            <p className="whitespace-pre-wrap wrap-break-word">
+              <span className="flex gap-2">
+                <span className="block animate-bounce">&bull;</span>
+                <span className="block animate-bounce delay-75">&bull;</span>
+                <span className="block animate-bounce delay-150">&bull;</span>
+              </span>
+            </p>
+          )}
           {isStreaming ? (
-            <span className="sr-only">Assistant is still typing.</span>
+            <p className="whitespace-pre-wrap wrap-break-word">
+              <span className="sr-only">Assistant is still typing.</span>
+            </p>
           ) : null}
         </div>
       </div>
@@ -125,7 +131,7 @@ function MessageBubble({
       <div
         className={cn(
           "flex gap-1",
-          isAssistant ? "ml-8" : "mr-8 flex-row-reverse"
+          isAssistant ? "ml-8" : "mr-8 flex-row-reverse",
         )}
       >
         <Button
@@ -133,7 +139,9 @@ function MessageBubble({
           variant="ghost"
           size="icon-sm"
           className="text-muted-foreground hover:text-foreground"
-          aria-label={isAssistant ? "Copy assistant message" : "Copy your message"}
+          aria-label={
+            isAssistant ? "Copy assistant message" : "Copy your message"
+          }
           disabled={!content.trim()}
           onClick={() => void copyMessageText(content)}
         >
@@ -173,15 +181,22 @@ export default function LiveChat({
       new DefaultChatTransport({
         api: "/api/chat",
       }),
-    []
+    [],
   );
 
-  const { messages, sendMessage, setMessages, regenerate, status, error, stop } =
-    useChat({
-      id: CHAT_ID,
-      transport,
-      messages: INITIAL_MESSAGES,
-    });
+  const {
+    messages,
+    sendMessage,
+    setMessages,
+    regenerate,
+    status,
+    error,
+    stop,
+  } = useChat({
+    id: CHAT_ID,
+    transport,
+    messages: INITIAL_MESSAGES,
+  });
 
   React.useEffect(() => {
     const stored = loadAccessibilityChatFromStorage();
@@ -230,11 +245,10 @@ export default function LiveChat({
         toast.error("Could not resend message");
       }
     },
-    [messages, regenerate, sendMessage, setMessages]
+    [messages, regenerate, sendMessage, setMessages],
   );
 
-  const canSend =
-    apiConfigured && !busy && inputValue.trim().length > 0;
+  const canSend = apiConfigured && !busy && inputValue.trim().length > 0;
 
   return (
     <div className={cn("fixed right-6 bottom-6 z-50", className)}>
@@ -282,15 +296,12 @@ export default function LiveChat({
               on this device.
             </SheetDescription>
             {!apiConfigured ? (
-              <p
-                className="text-xs text-destructive"
-                role="status"
-              >
+              <p className="text-xs text-destructive" role="status">
                 Chat is offline: set{" "}
                 <span className="font-mono">OPENROUTER_API_KEY</span> (and
-                optionally{" "}
-                <span className="font-mono">OPENROUTER_MODEL</span>) in{" "}
-                <span className="font-mono">.env.local</span>, then restart dev.
+                optionally <span className="font-mono">OPENROUTER_MODEL</span>)
+                in <span className="font-mono">.env.local</span>, then restart
+                dev.
               </p>
             ) : null}
           </SheetHeader>
@@ -359,11 +370,7 @@ export default function LiveChat({
                     Stop
                   </Button>
                 ) : null}
-                <Button
-                  type="submit"
-                  disabled={!canSend}
-                  aria-busy={busy}
-                >
+                <Button type="submit" disabled={!canSend} aria-busy={busy}>
                   Send
                 </Button>
               </div>
