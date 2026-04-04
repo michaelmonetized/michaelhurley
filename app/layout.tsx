@@ -8,6 +8,7 @@ import "./globals.css";
 import ColorScheme from "@/components/color-scheme";
 import Accessibility from "@/components/accessibility";
 import LiveChat from "@/components/marketing/live-chat";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const sourceSans = Source_Sans_3({
@@ -48,6 +49,7 @@ export default function RootLayout({
           <TooltipProvider>
             <Accessibility>{children}</Accessibility>
             <LiveChat apiConfigured={accessibilityChatConfigured} />
+            <Toaster richColors />
           </TooltipProvider>
         </ColorScheme>
       </body>

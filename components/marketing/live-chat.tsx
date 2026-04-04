@@ -6,6 +6,8 @@ import {
   DefaultChatTransport,
   type UIMessage,
 } from "ai";
+import { ArrowClockwiseIcon, CopySimpleIcon } from "@phosphor-icons/react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +20,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  loadAccessibilityChatFromStorage,
+  saveAccessibilityChatToStorage,
+} from "@/lib/accessibility-chat-storage";
 
 const CHAT_ID = "layout-accessibility-chat";
 
@@ -43,7 +49,28 @@ function getMessageText(message: UIMessage): string {
     .join("");
 }
 
-function MessageBubble({ message }: { message: UIMessage }) {
+async function copyMessageText(text: string) {
+  if (!text.trim()) {
+    toast.error("Nothing to copy yet.");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
+  } catch {
+    toast.error("Could not copy");
+  }
+}
+
+function MessageBubble({
+  message,
+  busy,
+  onRetry,
+}: {
+  message: UIMessage;
+  busy: boolean;
+  onRetry: () => void | Promise<void>;
+}) {
   const isAssistant = message.role === "assistant";
   const content = getMessageText(message);
   const isStreaming =
@@ -51,40 +78,80 @@ function MessageBubble({ message }: { message: UIMessage }) {
     message.parts.some(
       (p) => p.type === "text" && p.state === "streaming"
     );
+  const canRetry = !busy && !isStreaming && content.length > 0;
 
   return (
     <div
       className={cn(
-        "flex items-start gap-2",
-        isAssistant ? "flex-row" : "flex-row-reverse"
+        "flex flex-col gap-1",
+        isAssistant ? "items-start" : "items-end"
       )}
     >
-      <Avatar size="sm">
-        <AvatarFallback
+      <div
+        className={cn(
+          "flex items-start gap-2",
+          isAssistant ? "flex-row" : "flex-row-reverse"
+        )}
+      >
+        <Avatar size="sm">
+          <AvatarFallback
+            className={cn(
+              "text-[10px] font-bold",
+              isAssistant
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground"
+            )}
+            aria-hidden
+          >
+            {isAssistant ? "A11y" : "You"}
+          </AvatarFallback>
+        </Avatar>
+
+        <div
           className={cn(
-            "text-[10px] font-bold",
+            "max-w-[min(100%,18rem)] rounded-none px-3 py-2 text-xs leading-relaxed",
             isAssistant
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground"
+              ? "bg-muted text-foreground"
+              : "bg-primary text-primary-foreground"
           )}
-          aria-hidden
         >
-          {isAssistant ? "A11y" : "You"}
-        </AvatarFallback>
-      </Avatar>
+          <p className="whitespace-pre-wrap break-words">{content}</p>
+          {isStreaming ? (
+            <span className="sr-only">Assistant is still typing.</span>
+          ) : null}
+        </div>
+      </div>
 
       <div
         className={cn(
-          "max-w-[75%] rounded-none px-3 py-2 text-xs leading-relaxed",
-          isAssistant
-            ? "bg-muted text-foreground"
-            : "bg-primary text-primary-foreground"
+          "flex gap-1",
+          isAssistant ? "ml-8" : "mr-8 flex-row-reverse"
         )}
       >
-        <p className="whitespace-pre-wrap">{content}</p>
-        {isStreaming ? (
-          <span className="sr-only">Assistant is still typing.</span>
-        ) : null}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="text-muted-foreground hover:text-foreground"
+          aria-label={isAssistant ? "Copy assistant message" : "Copy your message"}
+          disabled={!content.trim()}
+          onClick={() => void copyMessageText(content)}
+        >
+          <CopySimpleIcon className="size-4" aria-hidden />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="text-muted-foreground hover:text-foreground"
+          aria-label={
+            isAssistant ? "Regenerate assistant reply" : "Resend this message"
+          }
+          disabled={!canRetry}
+          onClick={() => void onRetry()}
+        >
+          <ArrowClockwiseIcon className="size-4" aria-hidden />
+        </Button>
       </div>
     </div>
   );
@@ -98,6 +165,7 @@ export default function LiveChat({
   apiConfigured?: boolean;
 }) {
   const [inputValue, setInputValue] = React.useState("");
+  const [storageReady, setStorageReady] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
   const transport = React.useMemo(
@@ -108,17 +176,63 @@ export default function LiveChat({
     []
   );
 
-  const { messages, sendMessage, status, error, stop } = useChat({
-    id: CHAT_ID,
-    transport,
-    messages: INITIAL_MESSAGES,
-  });
+  const { messages, sendMessage, setMessages, regenerate, status, error, stop } =
+    useChat({
+      id: CHAT_ID,
+      transport,
+      messages: INITIAL_MESSAGES,
+    });
+
+  React.useEffect(() => {
+    const stored = loadAccessibilityChatFromStorage();
+    if (stored && stored.length > 0) {
+      setMessages(stored);
+    }
+    setStorageReady(true);
+  }, [setMessages]);
+
+  React.useEffect(() => {
+    if (!storageReady) return;
+    const t = window.setTimeout(() => {
+      saveAccessibilityChatToStorage(messages);
+    }, 300);
+    return () => window.clearTimeout(t);
+  }, [messages, storageReady]);
 
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, status]);
 
   const busy = status === "submitted" || status === "streaming";
+
+  const handleRetry = React.useCallback(
+    async (message: UIMessage) => {
+      if (message.role === "assistant") {
+        try {
+          await regenerate({ messageId: message.id });
+        } catch {
+          toast.error("Could not regenerate reply");
+        }
+        return;
+      }
+
+      const idx = messages.findIndex((m) => m.id === message.id);
+      if (idx < 0) return;
+      const text = getMessageText(message);
+      if (!text.trim()) return;
+
+      const prior = messages.slice(0, idx);
+      setMessages(prior);
+      try {
+        await sendMessage({ text });
+      } catch {
+        setMessages(messages);
+        toast.error("Could not resend message");
+      }
+    },
+    [messages, regenerate, sendMessage, setMessages]
+  );
+
   const canSend =
     apiConfigured && !busy && inputValue.trim().length > 0;
 
@@ -164,7 +278,8 @@ export default function LiveChat({
             </SheetTitle>
             <SheetDescription>
               Powered by OpenRouter. Ask about WCAG, ADA-minded engineering, and
-              this app&apos;s accessibility-oriented patterns.
+              this app&apos;s accessibility-oriented patterns. History is saved
+              on this device.
             </SheetDescription>
             {!apiConfigured ? (
               <p
@@ -187,7 +302,12 @@ export default function LiveChat({
             className="flex flex-1 flex-col gap-3 overflow-y-auto p-4"
           >
             {messages.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                busy={busy}
+                onRetry={() => handleRetry(msg)}
+              />
             ))}
             <div ref={messagesEndRef} />
           </div>

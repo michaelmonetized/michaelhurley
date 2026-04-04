@@ -6,3 +6,4 @@
 - New `POST /api/chat` route and `.env.example` entries for OpenRouter configuration.
 - Cleared ESLint warnings: removed unused imports on cart/checkout pages; replaced `form.watch()` with `useWatch` in form examples for React Compiler compatibility; dropped unused `Badge` imports in date examples.
 - OpenRouter chat: use valid default `openrouter/free` (not `openrouter/openrouter/free`), probe candidate ids once per process with `generateText`, cache the first success, and use `openrouter.chat(id)` so requests hit `/chat/completions` (not OpenAI’s `/responses`, which OpenRouter rejects for chat).
+- Accessibility assistant: expanded system prompt with markdown “Codebase patterns”; `localStorage` persistence for the transcript; per-bubble copy and retry (regenerate assistant / resend user after truncating tail); root `Toaster` for copy feedback.
