@@ -1,4 +1,12 @@
-This is a [Next.js](https://nextjs.org) app using a repo-scoped local HTTPS hostname for development.
+# test-create-next-app
+
+This repo is a Bun-first Next.js App Router sandbox for a fictional product called Hustle Launch. It combines three things in one codebase:
+
+- a marketing site and SaaS-style account-flow mockups
+- a local UI kit and WCAG-focused reference surfaces
+- a small AI-powered accessibility chat demo
+
+Most of the product pages are currently front-end demos backed by static or in-memory data. The main exceptions are the route handlers in `app/api/*` and the environment-driven accessibility chat.
 
 ## Getting Started
 
@@ -8,30 +16,123 @@ Install dependencies:
 bun install
 ```
 
-Start the development server:
+Start the local dev server:
 
 ```bash
 bun run dev
 ```
 
-This does a little more than plain `next dev`:
+This does more than plain `next dev`:
 
-- computes a stable local hostname from the repo name
+- computes a stable hostname from the repo name
 - writes a per-project Caddy snippet
 - reloads Caddy
 - starts Next on an internal high port
 
-For this repo, the dev URL is:
+For this repo, the local URL is:
 
 ```text
 https://test-create-next-app.localhost
 ```
 
-You can inspect the derived host and port with:
+Inspect the derived host and port with:
 
 ```bash
 bun run dev:info
 ```
+
+## Tech Stack
+
+- Runtime and package manager: Bun
+- Framework: Next.js `16.2.1-canary.13` using the App Router
+- UI: React `19.2.4`
+- Language: TypeScript in `strict` mode
+- Styling: Tailwind CSS `v4`, `tailwind-merge`, `clsx`, `tw-animate-css`
+- Component layer: local `components/ui/*` primitives built around shadcn/ui, Base UI, Radix UI, and custom layout wrappers
+- Forms and validation: `react-hook-form`, `zod`, `@hookform/resolvers`
+- Charts and interaction helpers: `recharts`, `embla-carousel-react`, `react-day-picker`, `react-resizable-panels`, `sonner`
+- Icons and theming: Phosphor Icons, `next-themes`, `next/font`
+- AI integration: Vercel AI SDK (`ai`, `@ai-sdk/react`, `@ai-sdk/openai`) against OpenRouter
+- HTML parsing for image prefetching: `linkedom`
+
+## Architecture Style
+
+This app is structured as a component-driven App Router monolith with a strong design-system flavor. The overall pattern is server-first rendering with explicit client islands only where interactivity is needed.
+
+### Directory shape
+
+- `app/`: route entry points, route handlers, metadata routes, and error boundaries
+- `components/ui/`: reusable UI primitives and layout infrastructure
+- `components/ui/layout/`: navigation, footer, shell, sidebar, and container helpers
+- `components/marketing/`: landing-page sections and promotional components
+- `components/accessibility/`: accessibility affordances and chat-related helpers
+- `lib/`: small shared utilities and prompt/model helpers
+- `scripts/`: local dev host bootstrapping and generated Tailwind showcase code
+
+### Architectural notes
+
+- `app/layout.tsx` is the shared root shell. It wires fonts, theme handling, accessibility helpers, live chat, tooltips, and toasts.
+- Routes in `app/` default to server components. Pages that use hooks, local state, or browser APIs opt into `"use client"`.
+- The UI layer is intentionally centralized in `components/ui/*` so product pages can compose primitives instead of restyling from scratch.
+- Several pages are reference/demo surfaces rather than production flows. They document the component system and accessibility posture as much as they model an app.
+- `app/tailwindcss/page.tsx` and `app/tailwindcss/examples/*` are generated from `scripts/generate-tailwind-kitchen-sink.mjs`. Edit the script, not the generated output.
+
+## Code Standards
+
+- Use Bun commands only. Do not switch the repo over to npm, pnpm, or yarn workflows.
+- Treat this as canary-era Next.js. Before making framework-specific changes, read the relevant guide in `node_modules/next/dist/docs/`.
+- Prefer server components by default. Add `"use client"` only when a component needs hooks, event handlers, or browser-only APIs.
+- Reuse local primitives from `components/ui/*` and layout wrappers from `components/ui/layout/*` before introducing one-off patterns.
+- Use absolute imports through the `@/*` alias instead of long relative import chains.
+- Keep forms on the existing stack: `react-hook-form` plus `zod` validation.
+- Shared class composition should go through `lib/utils.ts` via `cn(...)`.
+- Treat generated files as generated. In particular, do not hand-edit `app/tailwindcss/page.tsx` or `app/tailwindcss/examples/*`.
+- Use `bun tsc --watch` and `bun lint` for local verification.
+- Before committing, run:
+
+```bash
+bun tsc && bun lint --fix --max-warnings 9999
+```
+
+- Do not use `bun run build` as the local verification step for this repo.
+
+## Route Map
+
+### Product and marketing pages
+
+- `/`: marketing home page with hero sections, logo carousel, product grid, services, pricing, and CTAs
+- `/dashboard`: sidebar-based SaaS dashboard mock with KPI cards, recent activity, and a chart placeholder
+- `/profile`: profile view/edit flow using tabs, `react-hook-form`, and `zod`
+- `/billing`: subscription management, usage meters, payment method, invoice history, and plan comparison
+- `/cart`: editable cart with quantity controls and order summary
+- `/checkout`: validated checkout form that submits to an in-memory success flow
+- `/order-complete`: purchase confirmation screen with follow-up actions
+- `/order-history`: table of historical orders and statuses
+- `/knowledge-base`: searchable help-center layout with categories and popular articles
+- `/privacy`: privacy policy page with custom metadata
+- `/terms`: terms of service page with custom metadata
+
+### Reference and design-system pages
+
+- `/components`: large shadcn/ui kitchen sink organized by actions, navigation, forms, data display, overlays, and advanced widgets
+- `/ui-kit`: higher-level application pattern gallery covering dashboards, shells, marketing, social, and feedback surfaces
+- `/tailwindcss`: generated Tailwind utility showcase for spacing, sizes, colors, grays, shades, and aspect ratios
+- `/elements`: WCAG-oriented HTML element kitchen sink and semantic reference page
+
+### Framework and API surfaces
+
+- `/api/chat`: streams accessibility chat responses through OpenRouter via the Vercel AI SDK
+- `/api/prefetch-images/[...rest]`: fetches a local page, extracts `main img` elements, and returns image metadata as JSON
+- `/robots.txt`: generated from `app/robots.ts`
+- `/manifest.webmanifest`: generated from `app/manifest.ts`
+- `app/not-found.tsx`, `app/error.tsx`, and `app/global-error.tsx`: route fallbacks and error boundaries
+
+## Environment
+
+- `OPENROUTER_API_KEY`: required to enable the live accessibility chat in the UI and `/api/chat`
+- `OPENROUTER_HTTP_REFERER`: optional override for the referer header sent to OpenRouter
+
+Without `OPENROUTER_API_KEY`, the chat route returns a `503` and the layout still renders without a working AI backend.
 
 ## Local Dev Requirements
 
@@ -42,25 +143,9 @@ bun run dev:info
 import ~/.local/etc/caddy/dev-sites/*.caddy
 ```
 
-- this repo expects Next dev requests to come from the repo-scoped hostname above, not `localhost:3000`
+- this repo expects dev traffic to arrive through the repo-scoped `.localhost` hostname above, not `localhost:3000`
 
-## Why
+## Notes
 
-Using a unique `.localhost` hostname avoids dev-origin issues with Next HMR and keeps local HTTPS/dev-origin behavior compatible with auth providers like Clerk.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The repo already contains generated showcase code and demo data. Not every route is wired to persistence or a real backend.
+- The App Router uses React canary behavior internally. If framework behavior looks unfamiliar, prefer the local Next docs over older general knowledge.

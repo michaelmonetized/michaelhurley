@@ -34,8 +34,8 @@ export default function GraysExample() {
               <div className="text-surface-0 text-xs">
                 text surface-0
               </div>
-              <div className="text-base text-xs">
-                text base
+              <div className="text-core text-xs">
+                text core
               </div>
               <div className="text-mantle text-xs">
                 text mantle
@@ -75,8 +75,8 @@ export default function GraysExample() {
               <div className="bg-surface-0 border border-border min-w-20 min-h-8 p-1 text-xs">
                 bg surface-0
               </div>
-              <div className="bg-base border border-border min-w-20 min-h-8 p-1 text-xs">
-                bg base
+              <div className="bg-core border border-border min-w-20 min-h-8 p-1 text-xs">
+                bg core
               </div>
               <div className="bg-mantle border border-border min-w-20 min-h-8 p-1 text-xs">
                 bg mantle
@@ -116,8 +116,8 @@ export default function GraysExample() {
               <div className="border-surface-0 border border-border min-w-20 min-h-8 p-1 text-xs">
                 border surface-0
               </div>
-              <div className="border-base border border-border min-w-20 min-h-8 p-1 text-xs">
-                border base
+              <div className="border-core border border-border min-w-20 min-h-8 p-1 text-xs">
+                border core
               </div>
               <div className="border-mantle border border-border min-w-20 min-h-8 p-1 text-xs">
                 border mantle
@@ -157,8 +157,8 @@ export default function GraysExample() {
               <div className="shadow-surface-0 shadow-xl min-w-20 min-h-8 p-1 text-xs">
                 shadow surface-0
               </div>
-              <div className="shadow-base shadow-xl min-w-20 min-h-8 p-1 text-xs">
-                shadow base
+              <div className="shadow-core shadow-xl min-w-20 min-h-8 p-1 text-xs">
+                shadow core
               </div>
               <div className="shadow-mantle shadow-xl min-w-20 min-h-8 p-1 text-xs">
                 shadow mantle

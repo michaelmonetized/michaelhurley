@@ -143,7 +143,7 @@ export default function PricingTable({ className }: { className?: string }) {
             )}
 
             <CardHeader className="pb-0">
-              <CardTitle className="text-base">{tier.name}</CardTitle>
+              <CardTitle className="text-core">{tier.name}</CardTitle>
               <CardDescription>{tier.description}</CardDescription>
             </CardHeader>
 

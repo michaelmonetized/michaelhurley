@@ -25,7 +25,7 @@ function HeroCentered() {
           <span className="text-primary">before the hype dies</span>
         </h1>
 
-        <p className="max-w-[36rem] text-base text-muted-foreground md:text-lg">
+        <p className="max-w-[36rem] text-core text-muted-foreground md:text-lg">
           Hustle Launch gives founders the toolkit to validate, build, and ship products in weeks
           — not months. Landing pages, waitlists, analytics, and payments out of the box.
         </p>
@@ -59,7 +59,7 @@ function HeroSplit() {
           From zero to launched in record time
         </h1>
 
-        <p className="max-w-[28rem] text-sm text-muted-foreground md:text-base">
+        <p className="max-w-[28rem] text-sm text-muted-foreground md:text-core">
           Stop duct-taping tools together. Hustle Launch is the single platform that takes you
           from idea validation to revenue — with everything wired up from day one.
         </p>

@@ -19,7 +19,7 @@
   --text-xs: calc(var(--text-md) * .98);
   --text-sm: calc(var(--text-md) * .99);
   --text-md: clamp(21px, calc(1dvw * var(--phi)), 28px);
-  --text-base: var(--text-md);
+  --text-core: var(--text-md);
   --text-lg: clamp(28px, calc(var(--text-md) * pow(var(--snx), 2)), 35px);
   --text-xl: clamp(35px, calc(var(--text-md) * pow(var(--snx), 3)), 42px);
   --text-2x: clamp(42px, calc(var(--text-md) * pow(var(--snx), 4)), 49px);
@@ -205,7 +205,7 @@
   --color-surface-2: var(--catpuccin-surface-2);
   --color-surface-1: var(--catpuccin-surface-1);
   --color-surface-0: var(--catpuccin-surface-0);
-  --color-base: var(--catpuccin-base);
+  --color-core: var(--catpuccin-base);
   --color-mantle: var(--catpuccin-mantle);
   --color-crust: var(--catpuccin-crust);
 
@@ -408,7 +408,7 @@
   color-scheme: light dark;
 
   font-family: var(--font-sans);
-  font-size: var(--text-base);
+  font-size: var(--text-core);
   line-height: var(--line-height);
 
   --radius: 0.625rem;
@@ -1184,9 +1184,9 @@
   sub,
   sup {
     --text-min: var(--text-xs);
-    --text-max: var(--text-base);
-    --text-base: var(--text-sm);
-    font-size: clamp(var(--text-min), var(--text-base), var(--text-max));
+    --text-max: var(--text-core);
+    --text-core: var(--text-sm);
+    font-size: clamp(var(--text-min), var(--text-core), var(--text-max));
   }
 
   p,
@@ -1217,8 +1217,8 @@
   output,
   slot,
   code {
-    font-size: clamp(var(--text-min), var(--text-base), var(--text-max));
-    line-height: calc(var(--line-height) * var(--text-base));
+    font-size: clamp(var(--text-min), var(--text-core), var(--text-max));
+    line-height: calc(var(--line-height) * var(--text-core));
     font-weight: 400;
     margin: 0;
     padding: 0;
@@ -1259,35 +1259,35 @@
   .h1 {
     --text-min: var(--text-2x);
     --text-max: var(--text-4x);
-    --text-base: var(--text-3x);
+    --text-core: var(--text-3x);
   }
 
   h2,
   .h2 {
     --text-min: var(--text-xl);
     --text-max: var(--text-3x);
-    --text-base: var(--text-2x);
+    --text-core: var(--text-2x);
   }
 
   h3,
   .h3 {
     --text-min: var(--text-lg);
     --text-max: var(--text-2x);
-    --text-base: var(--text-xl);
+    --text-core: var(--text-xl);
   }
 
   h4,
   .h4 {
     --text-min: var(--text-md);
     --text-max: var(--text-xl);
-    --text-base: var(--text-lg);
+    --text-core: var(--text-lg);
   }
 
   h5,
   .h5 {
-    --text-min: var(--text-base);
+    --text-min: var(--text-core);
     --text-max: var(--text-lg);
-    --text-base: var(--text-md);
+    --text-core: var(--text-md);
   }
 
   h6,

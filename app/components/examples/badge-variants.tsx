@@ -15,7 +15,7 @@ export default function BadgeVariantsExample() {
         <Badge
           key={variant}
           variant={variant}
-          className="text-base"
+          className="text-core"
         >
           {variant}
         </Badge>

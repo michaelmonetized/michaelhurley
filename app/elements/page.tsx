@@ -159,8 +159,8 @@ export default function Home() {
               <a href="#" className="bg-surface-0">
                 Surface-0
               </a>
-              <a href="#" className="bg-base">
-                Base
+              <a href="#" className="bg-core">
+                Core
               </a>
               <a href="#" className="bg-mantle">
                 Mantle
@@ -1338,7 +1338,7 @@ export default function Home() {
 
           <h3>Simple table</h3>
           <table>
-            <caption>Golden ratio scale at 21px base</caption>
+            <caption>Golden ratio scale at 21px core</caption>
             <thead>
               <tr>
                 <th scope="col">Token</th>
@@ -1351,19 +1351,19 @@ export default function Home() {
                 <td>
                   <code>--text-xs</code>
                 </td>
-                <td>base ÷ φ²</td>
+                <td>core ÷ φ²</td>
                 <td>~8px</td>
               </tr>
               <tr>
                 <td>
                   <code>--text-sm</code>
                 </td>
-                <td>base ÷ φ</td>
+                <td>core ÷ φ</td>
                 <td>~13px</td>
               </tr>
               <tr>
                 <td>
-                  <code>--text-base</code>
+                  <code>--text-core</code>
                 </td>
                 <td>1×</td>
                 <td>~21px</td>
@@ -1372,14 +1372,14 @@ export default function Home() {
                 <td>
                   <code>--text-md</code>
                 </td>
-                <td>base × φ</td>
+                <td>core × φ</td>
                 <td>~34px</td>
               </tr>
               <tr>
                 <td>
                   <code>--text-lg</code>
                 </td>
-                <td>base × φ²</td>
+                <td>core × φ²</td>
                 <td>~55px</td>
               </tr>
             </tbody>
