@@ -1,12 +1,6 @@
-# test-create-next-app
+# michaelhurley
 
-This repo is a Bun-first Next.js App Router sandbox for a fictional product called Hustle Launch. It combines three things in one codebase:
-
-- a marketing site and SaaS-style account-flow mockups
-- a local UI kit and WCAG-focused reference surfaces
-- a small AI-powered accessibility chat demo
-
-Most of the product pages are currently front-end demos backed by static or in-memory data. The main exceptions are the route handlers in `app/api/*` and the environment-driven accessibility chat.
+This repo is Michael Hurley's personal Next.js profile site, rebuilt from a CodePen prototype on top of the existing Tailwind v4 and App Router starter.
 
 ## Getting Started
 
@@ -32,7 +26,7 @@ This does more than plain `next dev`:
 For this repo, the local URL is:
 
 ```text
-https://test-create-next-app.localhost
+https://michaelhurley.localhost
 ```
 
 Inspect the derived host and port with:

@@ -17,10 +17,10 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/x-icon",
       },
     ],
-    name: "Design Gallery starter template",
-    short_name: "Design Gallery",
+    name: "Michael Hurley",
+    short_name: "Michael Hurley",
     description:
-      "Modern web design starter template with Next.js, Tailwind CSS, shadcn/ui, catpuccin base pallet, next-themes, phosphor-icons, Source* fonts, and more.",
-    categories: ["productivity", "business", "marketing"],
+      "Business operations, growth, design, and software development profile for Michael Hurley.",
+    categories: ["business", "portfolio", "design"],
   };
 }

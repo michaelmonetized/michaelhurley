@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 const project: z.infer<typeof projectSchema> = {
-  url: "https://portfolio.hustlelaunch.com",
-  title: "Hustle Launch Design Gallery",
-  logo: "/logo.svg",
+  url: "https://michaelhurley.localhost",
+  title: "Michael Hurley",
+  logo: "/profile/logo.svg",
   address: {
     street: "127 Lonely Violet Lane",
     city: "Sylva",
@@ -18,7 +18,8 @@ const project: z.infer<typeof projectSchema> = {
   place: "https://maps.app.goo.gl/TKr3eLkCmJhz12ce6",
   phone: "+18285931935",
   email: "sales@hustlelaunch.com",
-  description: "Modern web design and strategic marketing for emerging brands.",
+  description:
+    "Business operations, growth, design, and software development profile for Michael Hurley.",
   author: {
     name: "Michael C Hurley",
     url: "https://www.michaelchurley.com",

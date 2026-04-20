@@ -18,20 +18,20 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
-  loadAccessibilityChatFromStorage,
-  saveAccessibilityChatToStorage,
-} from "@/lib/accessibility-chat-storage";
+  loadMichaelHurleyChatFromStorage,
+  saveMichaelHurleyChatToStorage,
+} from "@/lib/michael-hurley-chat-storage";
 
-const CHAT_ID = "layout-accessibility-chat";
+const CHAT_ID = "michael-hurley-profile-assistant";
 
 const INITIAL_MESSAGES: UIMessage[] = [
   {
-    id: "welcome-accessibility",
+    id: "welcome-michael",
     role: "assistant",
     parts: [
       {
         type: "text",
-        text: "Hi — I’m your accessibility guide for this proof-of-concept. Ask about WCAG-minded patterns, keyboard and focus, semantic HTML, ARIA, contrast and color tokens, reduced motion, or how Tailwind, shadcn-style UI, and Catppuccin-inspired theming show up here. What would you like to explore?",
+        text: "Hi — I'm Michael's AI assistant. Ask me anything about his background in business operations, technology, management, or software engineering. What would you like to know?",
       },
     ],
   },
@@ -98,7 +98,7 @@ function MessageBubble({
             )}
             aria-hidden
           >
-            {isAssistant ? "A11y" : "You"}
+            {isAssistant ? "MH" : "You"}
           </AvatarFallback>
         </Avatar>
 
@@ -199,7 +199,7 @@ export default function LiveChat({
   });
 
   React.useEffect(() => {
-    const stored = loadAccessibilityChatFromStorage();
+    const stored = loadMichaelHurleyChatFromStorage();
     if (stored && stored.length > 0) {
       setMessages(stored);
     }
@@ -209,7 +209,7 @@ export default function LiveChat({
   React.useEffect(() => {
     if (!storageReady) return;
     const t = window.setTimeout(() => {
-      saveAccessibilityChatToStorage(messages);
+      saveMichaelHurleyChatToStorage(messages);
     }, 300);
     return () => window.clearTimeout(t);
   }, [messages, storageReady]);
@@ -251,14 +251,14 @@ export default function LiveChat({
   const canSend = apiConfigured && !busy && inputValue.trim().length > 0;
 
   return (
-    <div className={cn("fixed right-6 bottom-6 z-50", className)}>
+    <div className={cn("fixed right-6 bottom-6 z-[10000]", className)}>
       <Sheet>
         <SheetTrigger asChild>
           <Button
             type="button"
             size="icon-lg"
             className="size-12 rounded-full shadow-lg"
-            aria-label="Open accessibility assistant chat"
+            aria-label="Open Michael Hurley profile assistant chat"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -280,7 +280,7 @@ export default function LiveChat({
         <SheetContent
           side="right"
           showCloseButton
-          className="flex flex-col sm:max-w-[24rem]"
+          className="flex flex-col sm:max-w-[24rem] z-[10001]"
         >
           <SheetHeader className="border-b">
             <SheetTitle className="flex items-center gap-2">
@@ -288,12 +288,11 @@ export default function LiveChat({
                 className="inline-block size-2 rounded-full bg-emerald-500"
                 aria-hidden
               />
-              Accessibility assistant
+              Profile assistant
             </SheetTitle>
             <SheetDescription>
-              Powered by OpenRouter. Ask about WCAG, ADA-minded engineering, and
-              this app&apos;s accessibility-oriented patterns. History is saved
-              on this device.
+              Powered by OpenRouter. Ask about Michael Hurley&apos;s background,
+              career, and skills. History is saved on this device.
             </SheetDescription>
             {!apiConfigured ? (
               <p className="text-xs text-destructive" role="status">
@@ -347,10 +346,10 @@ export default function LiveChat({
               <div className="flex items-center gap-2">
                 <Input
                   type="text"
-                  name="accessibility-chat-message"
+                  name="profile-chat-message"
                   placeholder={
                     apiConfigured
-                      ? "Ask about accessibility and this PoC…"
+                      ? "Ask me anything…"
                       : "Configure OpenRouter to enable chat"
                   }
                   value={inputValue}
@@ -358,7 +357,7 @@ export default function LiveChat({
                   className="flex-1"
                   disabled={!apiConfigured || busy}
                   autoComplete="off"
-                  aria-label="Message to accessibility assistant"
+                  aria-label="Message to profile assistant"
                 />
                 {busy ? (
                   <Button

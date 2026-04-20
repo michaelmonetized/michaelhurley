@@ -1,13 +1,11 @@
 {
-  "name": "test-create-next-app",
+  "name": "michaelhurley",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/generate-tailwind-kitchen-sink.mjs",
     "dev": "node scripts/dev-localhost.mjs",
     "dev:raw": "next dev",
     "dev:info": "node scripts/dev-localhost-info.mjs",
-    "prebuild": "node scripts/generate-tailwind-kitchen-sink.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

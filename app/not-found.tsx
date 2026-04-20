@@ -9,8 +9,8 @@ export default async function NotFound() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-4xl font-bold">Not Found {domain}</h1>
-      <p className="text-lg">The page you are looking for does not exist.</p>
+      <h1 className="text-4xl font-bold">Page not found {domain}</h1>
+      <p className="text-lg">There&apos;s nothing here yet.</p>
       {referer && (
         <Button asChild>
           <Link href={referer}>Go back</Link>

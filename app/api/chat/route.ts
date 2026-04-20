@@ -4,7 +4,7 @@ import {
   streamText,
   type UIMessage,
 } from "ai";
-import { ACCESSIBILITY_CHAT_SYSTEM_PROMPT } from "@/lib/accessibility-chat-system-prompt";
+import { MICHAEL_HURLEY_CHAT_SYSTEM_PROMPT } from "@/lib/michael-hurley-chat-system-prompt";
 import { resolveOpenRouterModelId } from "@/lib/openrouter-resolve-model";
 
 export const maxDuration = 60;
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   const result = streamText({
     // Callable `openrouter(id)` uses the Responses API; OpenRouter only proxies chat completions.
     model: openrouter.chat(modelId),
-    system: ACCESSIBILITY_CHAT_SYSTEM_PROMPT,
+    system: MICHAEL_HURLEY_CHAT_SYSTEM_PROMPT,
     messages: modelMessages,
   });
 
