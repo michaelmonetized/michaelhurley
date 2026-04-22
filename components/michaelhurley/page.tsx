@@ -1,59 +1,237 @@
 /* eslint-disable @next/next/no-img-element */
-import type { CSSProperties } from "react";
+"use client";
+
+import type { CSSProperties, ReactNode } from "react";
 import {
-  developmentGroups,
-  galleryCards,
-  heroFlashNames,
-  skillGroups,
-  timelineEntries,
-  type TimelineDoublePhotoEntry,
-  type TimelineEntry,
-  type TimelinePhotoEntry,
-  type TimelineRoleEntry,
-} from "@/components/michaelhurley/data";
+  useEffect,
+  useEffectEvent,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { flushSync } from "react-dom";
+import {
+  motion,
+  useMotionTemplate,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "motion/react";
+import type { MotionValue } from "motion/react";
+import { heroFlashNames } from "@/components/michaelhurley/data";
 import {
   DrawStrokeSetup,
   GooBackgroundCanvas,
   HeroCanvas,
 } from "@/components/michaelhurley/effects";
+import { SiteNav } from "@/components/michaelhurley/layout-shell";
 import {
-  CodeIcon,
-  LiveIcon,
   MarkIcon,
-  SignatureMark,
   WaveText,
+  signaturePath,
 } from "@/components/michaelhurley/shared";
-import {
-  SiteFooter,
-  SiteNav,
-} from "@/components/michaelhurley/layout-shell";
 
-const groupedGalleryCards = Array.from({ length: 4 }, (_, columnIndex) =>
-  galleryCards.filter((_, index) => index % 4 === columnIndex),
-);
+type SectionKey = "hero" | "announcements" | "summary" | "timeline";
+type SharedMarkSectionKey = Exclude<SectionKey, "timeline">;
 
-function getCalendarWeeksSince(startDate: Date, endDate = new Date()) {
-  const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7;
+type HomeTimelineEntry = {
+  company: string;
+  lines: ReactNode[];
+  bullets: string[];
+};
 
-  const startOfWeek = (date: Date) => {
-    const nextDate = new Date(date);
-    nextDate.setHours(0, 0, 0, 0);
-    nextDate.setDate(nextDate.getDate() - nextDate.getDay());
-    return nextDate;
-  };
+const SECTION_MARK_TRANSITION_NAME = "section-mark";
+const HERO_TRANSFORM_SPRING = { damping: 30, mass: 0.35, stiffness: 220 };
+const TIMELINE_SPRING = { damping: 28, mass: 0.45, stiffness: 160 };
 
-  const startWeek = startOfWeek(startDate);
-  const endWeek = startOfWeek(endDate);
+const homeTimelineEntries: HomeTimelineEntry[] = [
+  {
+    company: "Hustle Launch",
+    lines: [
+      <>
+        <strong>Director</strong>, 02/2024 - Present
+      </>,
+      <>
+        MRR <strong>$70k</strong>
+      </>,
+    ],
+    bullets: [
+      "Oversee all aspects of the company's success, including but not limited to: sales, marketing, finance, human resources, and technology.",
+      "Responsible for the company's growth and success.",
+      "Manage the company's finances, including but not limited to: revenue, expenses, and cash flow.",
+      "Manage the company's human resources, including but not limited to: employee recruitment, training, and development.",
+      "Manage the company's technology, including but not limited to: software development, hardware, and infrastructure.",
+    ],
+  },
+  {
+    company: "Kaibo, LLC D/B/A Realay.com",
+    lines: [
+      <>
+        <strong>Chief Technology Officer</strong>, 03/2023 - 04/2024
+      </>,
+      <>
+        Salary: <strong>$60k++</strong>/yr
+      </>,
+    ],
+    bullets: [
+      "Responsible for the development and maintenance of the company's technology, including but not limited to: infrastructure, database design, software engineering, user experience, design, video production, investment acquisition, direct to customer marketing, sales and growth strategy.",
+      "Support c-suite with technology and infrastructure for analyzing and monitoring operations, usage, and performance.",
+      "Support clients with usability, maintenance, and direct technical support for onboarding, integration, and troubleshooting.",
+      "Collaborate with clients to develop and implement solutions to meet their needs.",
+    ],
+  },
+  {
+    company: "White Fox Studios",
+    lines: [
+      <>
+        <strong>Director</strong>, 02/2015 - 02/2024
+      </>,
+      <>
+        Salary: $28k/yr - <strong>$60k++</strong>/yr
+      </>,
+    ],
+    bullets: [
+      "Responsible for all aspects of the company's success, including but not limited to: sales, marketing, finance, human resources, and technology.",
+      "Develop software and systems to support the business and business clients.",
+      "Sell marketing and web design services to clients.",
+      "Provide support and maintenance for clients' websites and online presence.",
+      "Collaborate with clients to develop and implement solutions to meet their needs.",
+      "Consult with clients on business strategy, marketing, and sales.",
+      "Conduct market research and analysis to inform business decisions and client marketing strategies.",
+      "Manage company finances: revenue, expenses, and cash flow.",
+      "Manage sales, marketing, and customer satisfaction.",
+      "Manage teams and staff: recruitment, training, development, performance, and compensation.",
+    ],
+  },
+  {
+    company: "Papa John's Waynesville/Franklin, NC",
+    lines: [
+      <>
+        <strong>Franchisee Partner</strong>, 06/2014 - 02/2015
+      </>,
+      <>
+        Salary: $7.50/h - <strong>$27k</strong>/yr
+      </>,
+    ],
+    bullets: [
+      "Responsible for the management of the store's operations, including but not limited to: scheduling, customer service, inventory, sales, recruitment, human resources, cost analysis, budgeting and reporting to franchisee/corporate.",
+      "Manage the store's finances, including but not limited to: revenue, expenses, and cash flow.",
+      "Manage the store's sales, marketing, and customer satisfaction.",
+    ],
+  },
+  {
+    company: "Hurley's Creekside Dining & Rhum Bar",
+    lines: [
+      <>
+        <strong>Co-Owner/Operator</strong>, 07/2010 - 05/2014
+      </>,
+      <>
+        AGR: $1.3M - <strong>$5.33M</strong>
+      </>,
+      <>
+        <strong>Acquired</strong> Arthur Robert Frady & Sons
+      </>,
+    ],
+    bullets: [
+      "Responsible for all aspects of the restaurant's success, including but not limited to: brand design, marketing, finance, human resources, and technology.",
+      "Manage the restaurant's finances, including but not limited to: revenue, expenses, and cash flow.",
+      "Manage the restaurant's human resources, including but not limited to: employee recruitment, training and working all positions, and development.",
+      "Manage the restaurant's technology, including but not limited to: software, hardware, and infrastructure.",
+      "Manage the restaurant's marketing, including but not limited to: advertising, social media, and public relations.",
+      "Manage the restaurant's branding, including but not limited to: logo, web & menu design, presentation, interior design, and signage.",
+    ],
+  },
+  {
+    company: "StudioTWLEVE",
+    lines: [
+      <>
+        <strong>Director</strong>, 01/2007 - 07/2010
+      </>,
+      <>
+        ANP: $50k - <strong>$387k</strong>
+      </>,
+      <>
+        <strong>Acquired</strong> TB Creative
+      </>,
+    ],
+    bullets: [
+      "Responsible for all aspects of the studio's success, including but not limited to: brand design, marketing, finance, human resources, and technology.",
+      "Manage the studio's finances, including but not limited to: revenue, expenses, and cash flow.",
+      "Manage the studio's human resources, including but not limited to: employee recruitment, training, and development.",
+      "Manage the studio's technology, including but not limited to: software, hardware, and infrastructure.",
+      "Manage the studio's marketing, including but not limited to: advertising, social media, and public relations.",
+      "Manage the studio's branding, including but not limited to: logo, web & menu design, presentation, interior design, and signage.",
+    ],
+  },
+  {
+    company: "Signs 'R' Us",
+    lines: [
+      <>
+        <strong>Production Manager</strong>, 07/2003 - 01/2007
+      </>,
+      <>
+        Salary: $10.50/h - <strong>$42k</strong>/yr
+      </>,
+    ],
+    bullets: [
+      "Responsible for all sign design and production, including but not limited to: design team output, production + packaging, equipment maintenance, and supplies.",
+      "Design team output: design review, customer feedback, and revisions.",
+      "Production + packaging: ensure the quality of sign materials, materials, final product, and packaging presentation.",
+      "Equipment maintenance: repair, maintain and replace equipement as needed.",
+      "Supplies: manage raw material inventory.",
+    ],
+  },
+  {
+    company: "Corporate Cleaning Services, Inc.",
+    lines: [
+      <>
+        <strong>Regional Manager</strong>, 06/1996 - 06/2003
+      </>,
+      <>
+        Salary: $7.50/h - <strong>$35k</strong>/yr
+      </>,
+    ],
+    bullets: [
+      "Responsible for all customer satisfaction for all clients in the greater south carolina lowcountry area, including but not limited to: team management and deployment, crisis response, HR, supply distribution, scheduling, recruitment, training and compensation, transporation, cleaning and grounds maintenance.",
+      "Additionally resonsible for all logo design, web design, and marketing/advertising for the company.",
+    ],
+  },
+];
 
-  return Math.round((endWeek.getTime() - startWeek.getTime()) / MS_PER_WEEK);
-}
-
-function HeroSection() {
+function HeroSection({
+  heroRef,
+  heroScale,
+  heroOpacity,
+  heroY,
+  heroFilter,
+  markRef,
+}: {
+  heroRef: React.RefObject<HTMLElement | null>;
+  heroScale: MotionValue<number>;
+  heroOpacity: MotionValue<number>;
+  heroY: MotionValue<string>;
+  heroFilter: MotionValue<string>;
+  markRef: (node: HTMLDivElement | null) => void;
+}) {
   const flashDuration = `${6 + heroFlashNames.length * 6}s`;
 
   return (
-    <header id="hero" role="banner" className="hero-wrapper">
+    <motion.header
+      ref={heroRef}
+      id="hero"
+      role="banner"
+      className="hero-wrapper"
+      style={{
+        filter: heroFilter,
+        opacity: heroOpacity,
+        scale: heroScale,
+        transformOrigin: "center center",
+        y: heroY,
+      }}
+    >
       <div
+        ref={markRef}
         className="hero-icon h-2x fixed text-center inset-inline-0"
         style={{ "--fade-delay": "0ms" } as CSSProperties}
       >
@@ -98,11 +276,17 @@ function HeroSection() {
           />
         </svg>
 
-        <p className="-mt-sm animate-fadeInUp" style={{ "--fade-delay": "500ms" } as CSSProperties}>
+        <p
+          className="-mt-sm animate-fadeInUp"
+          style={{ "--fade-delay": "500ms" } as CSSProperties}
+        >
           <small>current</small>
         </p>
 
-        <div className="flex flex-col gap-0 relative p-lg pt-xl animate-fadeInUp" style={{ "--fade-delay": "750ms" } as CSSProperties}>
+        <div
+          className="flex flex-col gap-0 relative p-lg pt-xl animate-fadeInUp"
+          style={{ "--fade-delay": "750ms" } as CSSProperties}
+        >
           <p className="text-center shrink" id="vizible-icon-wrapper">
             <span className="block spin3d">
               <img
@@ -129,21 +313,36 @@ function HeroSection() {
           </p>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
 
-function AnnouncementSection() {
+function AnnouncementSection({
+  opacity,
+  y,
+  signatureOpacity,
+  signaturePathLength,
+  markRef,
+}: {
+  opacity: MotionValue<number>;
+  y: MotionValue<string>;
+  signatureOpacity: MotionValue<number>;
+  signaturePathLength: MotionValue<number>;
+  markRef: (node: HTMLDivElement | null) => void;
+}) {
   return (
-    <section
+    <motion.section
       id="announcements"
       className="text-center sticky inset-0 h-svh w-svw place-items-center place-content-center pointer-events-none"
+      style={{ opacity, y }}
     >
       <div
         id="announcements-icon"
         className="fixed inset-0 grid h-svh w-svw place-content-center place-items-center"
       >
-        <MarkIcon className="hero-icon h-2x animate-fadeInUp" />
+        <div ref={markRef}>
+          <MarkIcon className="hero-icon h-2x animate-fadeInUp" />
+        </div>
         <p className="text-center">
           <small>
             <WaveText text="Message from Michael C Hurley" incoming />
@@ -181,17 +380,49 @@ function AnnouncementSection() {
       </div>
 
       <div id="signature" className="fixed inset-0 text-sapphire scale-1/2">
-        <SignatureMark />
+        <svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 2260 1976"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden
+        >
+          <g transform="matrix(1,0,0,1,50,-92.3287)">
+            <g transform="matrix(1.1444,0,0,1.1444,-89.5787,-139.669)">
+              <motion.path
+                d={signaturePath}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="16"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  opacity: signatureOpacity,
+                  pathLength: signaturePathLength,
+                }}
+              />
+            </g>
+          </g>
+        </svg>
       </div>
-    </section>
+    </motion.section>
   );
 }
 
-function SummarySection({ yearsExperience }: { yearsExperience: number }) {
+function SummarySection({
+  markRef,
+  yearsExperience,
+  summaryRef,
+}: {
+  markRef: (node: HTMLDivElement | null) => void;
+  yearsExperience: number;
+  summaryRef: React.RefObject<HTMLElement | null>;
+}) {
   return (
     <section
+      ref={summaryRef}
       id="summary"
-      className="p-xl w-svw relative place-content-center place-items-center text-center"
+      className="p-xl bg-background w-svw relative place-content-center place-items-center text-center"
     >
       <p className="place-content-center place-items-center text-center relative">
         <img src="/profile/reef.png" className="absolute reef" alt="" />
@@ -203,360 +434,309 @@ function SummarySection({ yearsExperience }: { yearsExperience: number }) {
         <span>{yearsExperience}</span> years experience in management, sales,
         marketing + growth, graphic design, and software development.
       </p>
-      <div className="hero-icon h-2x text-center m-xl">
+      <div ref={markRef} className="hero-icon h-2x text-center m-xl">
         <MarkIcon className="h-full w-auto" />
       </div>
     </section>
   );
 }
 
-function TimelineCard({ entry }: { entry: TimelineEntry }) {
-  if (entry.kind === "photo") {
-    const photoEntry = entry as TimelinePhotoEntry;
-    return (
-      <div className="flex flex-col items-stretch justify-start p-xl relative scroll-marquee-item">
-        <p>{photoEntry.title}</p>
-        <img
-          src={photoEntry.src}
-          alt={photoEntry.title}
-          className={photoEntry.imageClassName}
-        />
-      </div>
-    );
-  }
-
-  if (entry.kind === "doublePhoto") {
-    const doublePhotoEntry = entry as TimelineDoublePhotoEntry;
-    return (
-      <div className="flex flex-col items-stretch justify-between p-xl relative scroll-marquee-item">
-        {doublePhotoEntry.photos.map((photo) => (
-          <div key={photo.src} className="p-xl relative">
-            <p>{photo.title}</p>
-            <img
-              src={photo.src}
-              alt={photo.title}
-              className={photo.imageClassName}
-            />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  const roleEntry = entry as TimelineRoleEntry;
+function TimelineCard({ entry }: { entry: HomeTimelineEntry }) {
   return (
     <div className="flex flex-col items-stretch justify-start p-xl relative scroll-marquee-item">
-      {roleEntry.logoSrc && roleEntry.logoPlacement === "header" ? (
-        <p>
-          <img
-            src={roleEntry.logoSrc}
-            alt={`${roleEntry.company} logo`}
-            className={roleEntry.logoClassName}
-          />
-        </p>
-      ) : null}
-
       <h3 className="text-md font-bold">
-        <strong>{roleEntry.company}</strong>
+        <strong>{entry.company}</strong>
       </h3>
 
-      {roleEntry.meta.map((meta) => (
-        <p key={`${roleEntry.company}-${meta}`}>{meta}</p>
+      {entry.lines.map((line, index) => (
+        <p key={`${entry.company}-${index}`}>{line}</p>
       ))}
 
       <ul className="list-disc ml-md">
-        {roleEntry.bullets.map((bullet) => (
+        {entry.bullets.map((bullet) => (
           <li key={bullet}>{bullet}</li>
         ))}
       </ul>
-
-      {roleEntry.logoSrc && roleEntry.logoPlacement === "footer" ? (
-        <p>
-          <img
-            src={roleEntry.logoSrc}
-            alt={`${roleEntry.company} logo`}
-            className={roleEntry.logoClassName}
-          />
-        </p>
-      ) : null}
     </div>
   );
 }
 
-function TimelineSection() {
-  return (
-    <section id="timeline" className="relative">
-      <div className="scroll-marquee-container">
-        <div className="flex gap-xl items-stretch justify-start text-left w-max-content scroll-marquee relative">
-          {timelineEntries.map((entry, index) => (
-            <TimelineCard key={`${entry.kind}-${index}`} entry={entry} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ClockSection() {
-  return (
-    <section id="clock">
-      <div className="grid grid-cols-4 place-items-stretch place-content-stretch uppercase">
-        <div className="flex flex-col place-items-end place-content-end grow">
-          <img
-            className="left-in-out"
-            src="/profile/michael-off.png"
-            style={{ width: "100%", height: "auto" }}
-            alt="Michael Hurley off the clock"
-          />
-        </div>
-        <div className="flex flex-col place-items-stretch p-4x place-content-end grow">
-          <h2 className="text-9xl font-black text-right">
-            Off <small className="block text-4xl">The Clock</small>
-          </h2>
-          <a
-            href="#off-the-clock"
-            className="animate-hover-background-drop animate-hover-spin-icon-180 p-xl block border-4 w-fit rounded-xl ml-auto"
-          >
-            <span className="relative">⏎</span>
-          </a>
-        </div>
-        <div className="flex flex-col place-items-stretch p-4x place-content-end grow">
-          <h2 className="text-9xl font-black">
-            On <small className="block text-4xl">The Clock</small>
-          </h2>
-          <a
-            href="#on-the-clock"
-            className="animate-hover-background-drop animate-hover-spin-icon-180 p-xl block border-4 w-fit rounded-xl"
-          >
-            <span className="relative rotate-180">⏎</span>
-          </a>
-        </div>
-        <div className="flex flex-col place-items-end place-content-end grow">
-          <img
-            className="right-in-out"
-            src="/profile/michael-right.png"
-            style={{ width: "100%", height: "auto" }}
-            alt="Michael Hurley on the clock"
-          />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function SkillsSection({ averageWorkHours }: { averageWorkHours: string }) {
-  return (
-    <section id="sky">
-      <div className="w-svw h-svh sticky inset-0" style={{ overflow: "clip" }}>
-        <img
-          src="/profile/photos/sky.jpeg"
-          className="block object-cover h-svh w-svw object-left-bottom"
-          style={{ opacity: 0.6, filter: "blur(8px)" }}
-          alt=""
-        />
-      </div>
-
-      <div className="flex justify-end items-stretch relative p-xl">
-        <div
-          id="on-the-clock"
-          className="w-1/2 flex flex-col gap-xl p-xl avoid-navbar ml-auto"
-        >
-          <h2>Proven Skills</h2>
-          <p>
-            <span>{averageWorkHours}</span> hours of active, professional career
-            experience in management, technology, marketing and sales.
-          </p>
-
-          <div className="flex flex-col items-stretch justify-start gap-xl grow w-full">
-            {skillGroups.map((group) => (
-              <div
-                key={group.title}
-                className="flex flex-col items-stretch justify-start grow w-full"
-              >
-                <h3>{group.title}</h3>
-                <ul className="list-disc p-xl">
-                  {group.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-
-            <div className="flex flex-col items-stretch justify-start grow w-full gap-xl">
-              <h2>Full-Stack Development + Senior-Level Software Engineering</h2>
-              <p>
-                Proficient in C, C-derivative languages, scripting languages,
-                web technologies, app development, and the tooling around them.
-              </p>
-              {developmentGroups.map((group) => (
-                <div key={group.title}>
-                  <h3>{group.title}</h3>
-                  <ul className="list-disc ml-md">
-                    {group.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function GalleryProjectCard({
-  title,
-  subtitle,
-  liveUrl,
-  repoUrl,
-  screenshotSrc,
-  accent,
+function TimelineSection({
+  timelineRef,
+  timelineTrackRef,
+  x,
 }: {
-  title: string;
-  subtitle: string;
-  liveUrl: string;
-  repoUrl: string;
-  screenshotSrc: string;
-  accent: string;
+  timelineRef: React.RefObject<HTMLElement | null>;
+  timelineTrackRef: React.RefObject<HTMLDivElement | null>;
+  x: MotionValue<number>;
 }) {
   return (
-    <div
-      className="gallery-item w-full"
-      style={{ "--hover-color": accent } as CSSProperties}
-    >
-      <div className="gallery-item-outer relative">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="407"
-          height="411"
-          viewBox="0 0 407 411"
-          fill="none"
-          aria-hidden
+    <section ref={timelineRef} id="timeline" className="bg-background relative">
+      <GooBackgroundCanvas />
+      <div className="scroll-marquee-container">
+        <motion.div
+          ref={timelineTrackRef}
+          className="flex gap-xl items-stretch justify-start text-left w-max-content scroll-marquee relative"
+          style={{ x }}
         >
-          <path
-            d="M0 8C0 3.58173 3.58172 0 8 0H398.89C403.308 0 406.89 3.58172 406.89 8V364.983C406.89 369.401 403.308 372.983 398.89 372.983H263.329C256.329 372.983 249.709 376.171 245.345 381.644L228.846 402.338C224.482 407.812 217.863 411 210.862 411H8C3.58173 411 0 407.418 0 403V8Z"
-            fill="none"
-            className="draw-stroke"
-          />
-        </svg>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="407"
-          height="411"
-          viewBox="0 0 407 411"
-          fill="none"
-          aria-hidden
-        >
-          <path
-            d="M0 8C0 3.58173 3.58172 0 8 0H398.89C403.308 0 406.89 3.58172 406.89 8V364.983C406.89 369.401 403.308 372.983 398.89 372.983H263.329C256.329 372.983 249.709 376.171 245.345 381.644L228.846 402.338C224.482 407.812 217.863 411 210.862 411H8C3.58173 411 0 407.418 0 403V8Z"
-            fill="none"
-          />
-        </svg>
-
-        <div className="gallery-item-inner relative">
-          <div className="gallery-item-screenshot relative">
-            <div className="gallery-item-screenshot-inner grid place-items-center place-content-center text-center">
-              <div className="galler-ietm-links flex gap-sm absolute top-lg right-lg z-20">
-                <a
-                  href={liveUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-foreground/20 bg-background/90 text-foreground"
-                  aria-label={`Open ${title} live site`}
-                >
-                  <LiveIcon />
-                </a>
-                <a
-                  href={repoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-foreground/20 bg-background/90 text-foreground"
-                  aria-label={`Open ${title} source code`}
-                >
-                  <CodeIcon />
-                </a>
-              </div>
-              <img src={screenshotSrc} className="block object-cover" alt={title} />
-            </div>
-          </div>
-
-          <div className="gallery-item-logo relative z-10 p-xl text-left flex flex-col justify-end min-h-[23rem]">
-            <p className="text-sm uppercase tracking-[0.2em] text-foreground/70">
-              Frontend Hall of Fame
-            </p>
-            <h3 className="text-3xl font-black">{title}</h3>
-            <p className="max-w-[16rem] text-sm text-foreground/80">{subtitle}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function GallerySection() {
-  return (
-    <section id="gallery" className="h-svh avoid-navbar max-w-7xl mx-auto">
-      <div className="p-xl flex flex-wrap gap-2xl items-center">
-        <div className="w-1/2 p-xl">
-          <h2 className="title font-black text-7xl uppercase">
-            Frontend
-            <br />
-            <small className="subttitle text-7xl text-primary">
-              Hall of Fame
-            </small>
-          </h2>
-        </div>
-        <div className="w-1/2 p-xl">
-          <p>
-            From small local business websites to multi-surface product work,
-            Michael Hurley&apos;s engagement-first design decisions are built to
-            move people, not just decorate a screen.
-          </p>
-        </div>
-      </div>
-
-      <div
-        id="off-the-clock"
-        className="grid grid-cols-4 gap-xl place-items-center place-content-center"
-      >
-        {groupedGalleryCards.map((column, index) => (
-          <div key={index} className="gallery-column flex flex-col gap-xl w-full">
-            {column.map((card) => (
-              <GalleryProjectCard key={card.id} {...card} />
-            ))}
-          </div>
-        ))}
+          {homeTimelineEntries.map((entry) => (
+            <TimelineCard key={entry.company} entry={entry} />
+          ))}
+        </motion.div>
       </div>
     </section>
   );
 }
 
 export default function MichaelHurleyPage() {
+  const heroRef = useRef<HTMLElement>(null);
+  const summaryRef = useRef<HTMLElement>(null);
+  const timelineRef = useRef<HTMLElement>(null);
+  const timelineTrackRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+
+  const [activeSection, setActiveSection] = useState<SectionKey>("hero");
+  const [timelineDistance, setTimelineDistance] = useState(0);
+  const sectionMarkRefs = useRef<Record<SharedMarkSectionKey, HTMLDivElement | null>>({
+    announcements: null,
+    hero: null,
+    summary: null,
+  });
+  const activeSectionRef = useRef<SectionKey>("hero");
+  const canUseViewTransitionsRef = useRef(false);
+
   const yearsExperience = new Date().getFullYear() - 1999;
-  const totalWorkWeeks = getCalendarWeeksSince(new Date("1999-06-01"));
-  const averageWorkHours = (
-    ((40 * totalWorkWeeks + 80 * totalWorkWeeks) / 2)
-  ).toLocaleString();
+
+  const setSectionMarkRef = (section: SharedMarkSectionKey) => {
+    return (node: HTMLDivElement | null) => {
+      sectionMarkRefs.current[section] = node;
+    };
+  };
+
+  const { scrollY } = useScroll();
+  const { scrollYProgress: heroProgress } = useScroll({
+    offset: ["start start", "end start"],
+    target: heroRef,
+  });
+  const { scrollYProgress: summaryProgress } = useScroll({
+    offset: ["start end", "end start"],
+    target: summaryRef,
+  });
+  const { scrollYProgress: timelineProgress } = useScroll({
+    offset: ["start start", "end end"],
+    target: timelineRef,
+  });
+
+  const heroScale = useSpring(
+    useTransform(
+      heroProgress,
+      [0, 0.5, 1],
+      shouldReduceMotion ? [1, 1, 1] : [1, 0.2, 0.2],
+    ),
+    HERO_TRANSFORM_SPRING,
+  );
+  const heroOpacity = useTransform(
+    heroProgress,
+    [0, 0.5, 0.5001, 1],
+    shouldReduceMotion ? [1, 1, 1, 1] : [1, 1, 0, 0],
+  );
+  const heroY = useTransform(
+    heroProgress,
+    [0, 0.5, 1],
+    shouldReduceMotion ? ["0%", "0%", "0%"] : ["0%", "50%", "50%"],
+  );
+  const heroGrayscale = useTransform(
+    heroProgress,
+    [0, 0.5, 1],
+    shouldReduceMotion ? [0, 0, 0] : [0, 1, 1],
+  );
+  const heroFilter = useMotionTemplate`grayscale(${heroGrayscale})`;
+
+  const announcementsY = useTransform(
+    summaryProgress,
+    [0.56, 1],
+    shouldReduceMotion ? ["0%", "0%"] : ["0%", "-100%"],
+  );
+  const announcementsOpacity = useTransform(
+    summaryProgress,
+    [0.64, 1],
+    shouldReduceMotion ? [1, 1] : [1, 0],
+  );
+
+  const signaturePathLength = useSpring(
+    useTransform(
+      summaryProgress,
+      [0.12, 0.22],
+      shouldReduceMotion ? [1, 1] : [0, 1],
+    ),
+    HERO_TRANSFORM_SPRING,
+  );
+  const signatureOpacity = useTransform(
+    signaturePathLength,
+    [0, 0.05, 1],
+    [0, 1, 1],
+  );
+
+  const timelineX = useSpring(
+    useTransform(
+      timelineProgress,
+      [0, 1],
+      shouldReduceMotion ? [0, 0] : [0, -timelineDistance],
+    ),
+    TIMELINE_SPRING,
+  );
+
+  useEffect(() => {
+    if (shouldReduceMotion) return;
+
+    let cancelled = false;
+
+    void Promise.all([
+      import("view-transitions-toolkit/feature-detection"),
+      import("view-transitions-toolkit/track-active-view-transition"),
+    ]).then(([{ supports }, { trackActiveViewTransition }]) => {
+      if (cancelled) return;
+      canUseViewTransitionsRef.current = supports.sameDocument;
+      if (supports.sameDocument) {
+        trackActiveViewTransition();
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [shouldReduceMotion]);
+
+  useLayoutEffect(() => {
+    const track = timelineTrackRef.current;
+    if (!track) return;
+
+    const updateDistance = () => {
+      setTimelineDistance(track.scrollWidth);
+    };
+
+    updateDistance();
+
+    const resizeObserver = new ResizeObserver(updateDistance);
+    resizeObserver.observe(track);
+    window.addEventListener("resize", updateDistance);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateDistance);
+    };
+  }, []);
+
+  const transitionSection = useEffectEvent((nextSection: SectionKey) => {
+    const currentSection = activeSectionRef.current;
+
+    if (nextSection === currentSection) return;
+
+    const updateSection = () => {
+      activeSectionRef.current = nextSection;
+      setActiveSection(nextSection);
+    };
+
+    const documentWithTransitions = document as Document & {
+      activeViewTransition?: ViewTransition | null;
+      startViewTransition?: (callback: () => void) => ViewTransition;
+    };
+
+    const fromNode =
+      currentSection === "timeline"
+        ? null
+        : sectionMarkRefs.current[currentSection as SharedMarkSectionKey];
+    const toNode =
+      nextSection === "timeline"
+        ? null
+        : sectionMarkRefs.current[nextSection as SharedMarkSectionKey];
+
+    if (
+      shouldReduceMotion ||
+      !canUseViewTransitionsRef.current ||
+      !documentWithTransitions.startViewTransition ||
+      documentWithTransitions.activeViewTransition ||
+      !fromNode ||
+      !toNode
+    ) {
+      updateSection();
+      return;
+    }
+
+    fromNode.style.viewTransitionName = SECTION_MARK_TRANSITION_NAME;
+
+    const vt = documentWithTransitions.startViewTransition(() => {
+      fromNode.style.viewTransitionName = "none";
+      toNode.style.viewTransitionName = SECTION_MARK_TRANSITION_NAME;
+
+      flushSync(() => {
+        updateSection();
+      });
+    });
+
+    void vt.finished.finally(() => {
+      fromNode.style.viewTransitionName = "";
+      toNode.style.viewTransitionName = "";
+    });
+  });
+
+  const syncSectionState = useEffectEvent(() => {
+    const nextSection: SectionKey =
+      timelineProgress.get() >= 0.08
+        ? "timeline"
+        : summaryProgress.get() >= 0.32
+          ? "summary"
+          : heroProgress.get() >= 0.42
+            ? "announcements"
+            : "hero";
+
+    transitionSection(nextSection);
+  });
+
+  useEffect(() => {
+    const unsubscribe = scrollY.on("change", () => {
+      syncSectionState();
+    });
+
+    syncSectionState();
+
+    return () => {
+      unsubscribe();
+    };
+  }, [scrollY]);
 
   return (
-    <div id="top">
+    <div id="top" data-active-section={activeSection}>
       <DrawStrokeSetup />
-      <HeroSection />
+      <HeroSection
+        heroRef={heroRef}
+        heroFilter={heroFilter}
+        heroOpacity={heroOpacity}
+        heroScale={heroScale}
+        heroY={heroY}
+        markRef={setSectionMarkRef("hero")}
+      />
       <SiteNav />
-      <GooBackgroundCanvas />
 
       <main role="main" id="main" className="min-h-dvh relative">
-        <AnnouncementSection />
-        <SummarySection yearsExperience={yearsExperience} />
-        <TimelineSection />
-        <ClockSection />
-        <SkillsSection averageWorkHours={averageWorkHours} />
-        <GallerySection />
+        <AnnouncementSection
+          markRef={setSectionMarkRef("announcements")}
+          opacity={announcementsOpacity}
+          signatureOpacity={signatureOpacity}
+          signaturePathLength={signaturePathLength}
+          y={announcementsY}
+        />
+        <SummarySection
+          markRef={setSectionMarkRef("summary")}
+          summaryRef={summaryRef}
+          yearsExperience={yearsExperience}
+        />
+        <TimelineSection
+          timelineRef={timelineRef}
+          timelineTrackRef={timelineTrackRef}
+          x={timelineX}
+        />
       </main>
-
-      <SiteFooter />
 
       <svg width="0" height="0" aria-hidden className="absolute">
         <defs>

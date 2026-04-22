@@ -22,19 +22,24 @@ function portForSlug(slug) {
   return 3300 + (hash % 5000);
 }
 
-function ensureCaddyImport(caddyfilePath) {
-  const importLine = "import ~/.local/etc/caddy/dev-sites/*.caddy";
+function ensureCaddyImport(caddyfilePath, snippetsDir) {
+  const importLine = `import ${path.join(snippetsDir, "*.caddy")}`;
+  const legacyImportLine = "import ~/.local/etc/caddy/dev-sites/*.caddy";
   const marker = "# Project dev sites";
   const existing = existsSync(caddyfilePath) ? readFileSync(caddyfilePath, "utf8") : "";
+  const replacedLegacy = existing.replaceAll(legacyImportLine, importLine);
 
-  if (existing.includes(importLine)) {
+  if (replacedLegacy.includes(importLine)) {
+    if (replacedLegacy !== existing) {
+      writeFileSync(caddyfilePath, replacedLegacy, "utf8");
+    }
     return;
   }
 
-  const suffix = existing.trimEnd().length > 0 ? "\n\n" : "";
+  const suffix = replacedLegacy.trimEnd().length > 0 ? "\n\n" : "";
   writeFileSync(
     caddyfilePath,
-    `${existing.trimEnd()}${suffix}${marker}\n${importLine}\n`,
+    `${replacedLegacy.trimEnd()}${suffix}${marker}\n${importLine}\n`,
     "utf8"
   );
 }
@@ -44,13 +49,65 @@ function writeProjectSnippet(snippetPath, host, port) {
   writeFileSync(snippetPath, content, "utf8");
 }
 
-function runChecked(command, args) {
+function printCommandResult(result) {
+  if (result.stdout) {
+    process.stdout.write(result.stdout);
+  }
+
+  if (result.stderr) {
+    process.stderr.write(result.stderr);
+  }
+}
+
+function runCommand(command, args) {
   const result = spawnSync(command, args, {
-    stdio: "inherit",
+    encoding: "utf8",
   });
 
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
+  if (result.error) {
+    throw result.error;
+  }
+
+  return result;
+}
+
+function caddyAdminUnavailable(result) {
+  const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+
+  return (
+    (output.includes("http://localhost:2019/load") ||
+      output.includes("http://127.0.0.1:2019/load")) &&
+    output.includes("connect: connection refused")
+  );
+}
+
+function ensureCaddyLoaded(caddyfilePath) {
+  const reload = runCommand("caddy", [
+    "reload",
+    "--config",
+    caddyfilePath,
+    "--address",
+    "127.0.0.1:2019",
+  ]);
+  printCommandResult(reload);
+
+  if (reload.status === 0) {
+    return;
+  }
+
+  if (!caddyAdminUnavailable(reload)) {
+    process.exit(reload.status ?? 1);
+  }
+
+  console.warn(
+    "[dev-localhost] Caddy is not running. Starting it now. You may be prompted once for your password so Caddy can finish local HTTPS setup."
+  );
+
+  const start = runCommand("caddy", ["start", "--config", caddyfilePath]);
+  printCommandResult(start);
+
+  if (start.status !== 0) {
+    process.exit(start.status ?? 1);
   }
 }
 
@@ -63,11 +120,21 @@ const caddyfilePath = path.join(os.homedir(), ".local", "etc", "Caddyfile");
 const snippetsDir = path.join(os.homedir(), ".local", "etc", "caddy", "dev-sites");
 const snippetPath = path.join(snippetsDir, `${slug}.caddy`);
 
+mkdirSync(path.dirname(caddyfilePath), { recursive: true });
 mkdirSync(snippetsDir, { recursive: true });
-ensureCaddyImport(caddyfilePath);
+ensureCaddyImport(caddyfilePath, snippetsDir);
 writeProjectSnippet(snippetPath, host, port);
 
-runChecked("caddy", ["reload", "--config", caddyfilePath]);
+try {
+  ensureCaddyLoaded(caddyfilePath);
+} catch (error) {
+  if (error?.code === "ENOENT") {
+    console.error("[dev-localhost] `caddy` was not found on PATH.");
+    process.exit(1);
+  }
+
+  throw error;
+}
 
 const url = `https://${host}`;
 console.log(`[dev-localhost] ${url} -> 127.0.0.1:${port}`);

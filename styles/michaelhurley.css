@@ -31,6 +31,11 @@ body {
   min-height: 100svh;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 8rem;
+}
+
 body {
   overflow-x: hidden;
   overflow-y: auto;
@@ -48,10 +53,6 @@ header#hero {
   background-position: bottom left;
   background-repeat: no-repeat;
   background-size: cover;
-
-  animation: header-hero-scale 10s linear forwards;
-  animation-timeline: view();
-  animation-range: exit 0% cover 100%;
 
   canvas#hero-canvas {
     inset: 0;
@@ -348,61 +349,6 @@ img.reef {
       }
     }
 
-    .menu-state {
-      border: none;
-      position: absolute;
-      inset: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: -1;
-      opacity: 0;
-    }
-
-    #sheet-menu {
-      translate: 0 0;
-      translate: 100svw 0;
-      z-index: 9090;
-      transition: translate 0.6s var(--ease-wave);
-    }
-
-    &:has(.menu-state:checked) {
-      #sheet-menu {
-        translate: 0 0;
-      }
-
-      .menu-trigger {
-        z-index: 9191;
-        position: relative;
-
-        .menu-icon {
-          hr:first-child {
-            translate: 0 0.3em;
-            scale: 0.5 0.5;
-            rotate: 45deg;
-          }
-
-          hr:last-child {
-            translate: 0 -0.6em;
-            scale: 0.5 0.5;
-            rotate: -45deg;
-          }
-
-          &:hover {
-            hr:first-child {
-              translate: 0 0.3em;
-              scale: 0.667 0.667;
-            }
-
-            hr:last-child {
-              translate: 0 -0.6em;
-              scale: 0.667 0.667;
-            }
-          }
-        }
-      }
-    }
   }
 }
 
@@ -459,12 +405,19 @@ img.reef {
     padding: 0;
     height: 0.86em;
     line-height: 0.86em;
-    translate: 0 0.86em;
+    translate: 0 0;
+  }
+}
 
-    animation: wave-text-in 20s var(--ease-wave) both;
-    animation-delay: var(--char-delay, 100ms);
-    animation-timeline: view();
-    animation-range: entry 120svh entry 145svh;
+@supports (animation-timeline: view()) {
+  .wave-text-in {
+    b {
+      translate: 0 0.86em;
+      animation: wave-text-in 20s var(--ease-wave) both;
+      animation-delay: var(--char-delay, 100ms);
+      animation-timeline: view();
+      animation-range: entry 120svh entry 145svh;
+    }
   }
 }
 
@@ -674,15 +627,10 @@ img.reef {
 
   width: max-content;
   will-change: transform;
-
-  animation: scroll-marquee linear both;
-
-  animation-timeline: view();
-  animation-range: entry 133% exit 0%;
 }
 
 .scroll-marquee-item {
-  min-width: 33vw;
+  min-width: min(34rem, 85svw);
 
   img {
     width: 1080px;
@@ -737,11 +685,6 @@ img.reef {
   stroke-dasharray: var(--path-length, 1000);
   stroke-dashoffset: var(--path-length, 1000);
   z-index: 1010;
-
-  animation: draw-on-scroll linear both;
-  /* animation-timeline: view(); */
-
-  /* animation-range: entry 100% entry 115%; */
 }
 
 @keyframes draw-on-scroll {
@@ -756,9 +699,6 @@ img.reef {
 
   path {
     mask-image: url("/profile/logo-mask.svg");
-
-    animation-timeline: view();
-    animation-range: entry 150svh entry 160svh;
   }
 }
 
@@ -774,17 +714,13 @@ img.reef {
 }
 
 #summary {
-  padding-top: var(--avoid-navbar);
+  padding-top: 10vh;
 }
 
 #announcements {
   position: fixed;
   inset: 0;
-
   will-change: transform, opacity;
-  animation: lift-out var(--ease-elastic) both;
-  animation-timeline: view();
-  animation-range: exit 100% cover 300%;
 }
 
 @keyframes lift-out {
@@ -855,6 +791,16 @@ img.reef {
   /* mix-blend-mode: overlay; */
   opacity: 1;
   /* scale: 2; */
+}
+
+::view-transition-group(section-mark) {
+  animation-duration: 650ms;
+  animation-timing-function: var(--ease-wave);
+}
+
+::view-transition-old(section-mark),
+::view-transition-new(section-mark) {
+  mix-blend-mode: screen;
 }
 
 :root {
