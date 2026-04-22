@@ -2,8 +2,8 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
 import Link from "@/components/link";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { menuImages } from "@/components/michaelhurley/data";
 import { WaveText, Wordmark } from "@/components/michaelhurley/shared";
 
@@ -16,6 +16,8 @@ export const menuLinks = [
 ] as const;
 
 export function SiteNav() {
+  const [isOpen, setIsOpen] = React.useState(false);
+
   return (
     <section
       id="navbar"
@@ -28,49 +30,45 @@ export function SiteNav() {
       </div>
 
       <div id="menu">
-        <Sheet>
-          <SheetTrigger asChild>
-            <button
-              type="button"
-              className="menu-trigger relative animate-fadeInUp"
-              style={{ "--fade-delay": "500ms" } as React.CSSProperties}
-              aria-label="Open site navigation"
-            >
-              <span className="menu-icon h-8x w-8x flex flex-col gap-xl p-xl border-foreground border-4 rounded-xl place-content-center block">
-                <hr />
-                <hr />
-              </span>
-            </button>
-          </SheetTrigger>
-          <SheetContent
-            side="right"
-            showCloseButton
-            className="!max-w-none !w-svw !h-svh !top-0 !right-0 !left-0 !bottom-0 !border-0 p-4x bg-crust flex gap-4x place-items-center place-content-center"
-          >
-            <nav
-              id="sheet-menu"
-              className="w-full h-full flex gap-4x place-items-center place-content-center"
-            >
-              <div className="flex flex-wrap w-1/3">
-                {menuImages.map((image) => (
-                  <div key={image.src} className="w-1/2 p-xl">
-                    <img src={image.src} alt={image.alt} className={image.className} />
-                  </div>
-                ))}
+        <label className="menu-trigger relative animate-fadeInUp" style={{ "--fade-delay": "500ms" } as React.CSSProperties}>
+          <span className="menu-icon h-8x w-8x flex flex-col gap-xl p-xl border-foreground border-4 rounded-xl place-content-center block">
+            <hr />
+            <hr />
+          </span>
+          <input
+            type="checkbox"
+            name="menu-state"
+            className="menu-state"
+            checked={isOpen}
+            onChange={(e) => setIsOpen(e.target.checked)}
+          />
+        </label>
+        <nav
+          id="sheet-menu"
+          className="fixed inset-0 p-4x bg-crust z-50 flex gap-4x place-items-center place-content-center h-svh w-svw"
+        >
+          <div className="flex flex-wrap w-1/3">
+            {menuImages.map((image) => (
+              <div key={image.src} className="w-1/2 p-xl">
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  className={cn(image.className, "aspect-portrait object-cover")}
+                />
               </div>
+            ))}
+          </div>
 
-              <ul className="w-2/3 text-center uppercase p-xl">
-                {menuLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href}>
-                      <WaveText text={link.label} className="text-7xl" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </SheetContent>
-        </Sheet>
+          <ul className="w-2/3 text-center uppercase p-xl">
+            {menuLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} onClick={() => setIsOpen(false)}>
+                  <WaveText text={link.label} className="text-7xl" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </section>
   );

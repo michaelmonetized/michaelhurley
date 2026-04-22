@@ -29,12 +29,11 @@ body {
   padding: 0;
   max-width: 100svw;
   min-height: 100svh;
+  overflow-y: auto !important;
 }
 
 body {
   overflow-x: hidden;
-  overflow-y: auto;
-
   background-color: var(--background);
 }
 
@@ -48,10 +47,6 @@ header#hero {
   background-position: bottom left;
   background-repeat: no-repeat;
   background-size: cover;
-
-  animation: header-hero-scale 10s linear forwards;
-  animation-timeline: view();
-  animation-range: exit 0% cover 100%;
 
   canvas#hero-canvas {
     inset: 0;
@@ -361,7 +356,6 @@ img.reef {
     }
 
     #sheet-menu {
-      translate: 0 0;
       translate: 100svw 0;
       z-index: 9090;
       transition: translate 0.6s var(--ease-wave);
@@ -463,34 +457,12 @@ img.reef {
 
     animation: wave-text-in 20s var(--ease-wave) both;
     animation-delay: var(--char-delay, 100ms);
-    animation-timeline: view();
-    animation-range: entry 120svh entry 145svh;
   }
 }
 
 @keyframes wave-text-in {
   to {
     translate: 0 0;
-  }
-}
-
-@keyframes header-hero-scale {
-  50% {
-    opacity: 1;
-    scale: 0.2;
-    filter: grayscale(1);
-    translate: 0 50%;
-  }
-
-  50.01% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 0;
-    scale: 0.2;
-    filter: grayscale(1);
-    translate: 0 50%;
   }
 }
 
@@ -515,34 +487,6 @@ img.reef {
   translate: 0 100%;
   animation: fadeInUp 1s var(--ease-wave) forwards;
   animation-delay: var(--fade-delay, 0ms);
-}
-
-.animate-view-entry {
-  animation-timeline: view();
-  animation-range:
-    entry 0%,
-    entry 5%;
-}
-
-.animate-view-exit {
-  animation-timeline: view();
-  animation-range:
-    exit 95%,
-    exit 100%;
-}
-
-.animate-scroll-entry {
-  animation-timeline: scroll(root);
-  animation-range:
-    entry 0%,
-    entry 5%;
-}
-
-.animate-scroll-exit {
-  animation-timeline: scroll(root);
-  animation-range:
-    exit 95%,
-    exit 100%;
 }
 
 @keyframes fadeInUp {
@@ -674,11 +618,6 @@ img.reef {
 
   width: max-content;
   will-change: transform;
-
-  animation: scroll-marquee linear both;
-
-  animation-timeline: view();
-  animation-range: entry 133% exit 0%;
 }
 
 .scroll-marquee-item {
@@ -739,9 +678,6 @@ img.reef {
   z-index: 1010;
 
   animation: draw-on-scroll linear both;
-  /* animation-timeline: view(); */
-
-  /* animation-range: entry 100% entry 115%; */
 }
 
 @keyframes draw-on-scroll {
@@ -756,9 +692,6 @@ img.reef {
 
   path {
     mask-image: url("/profile/logo-mask.svg");
-
-    animation-timeline: view();
-    animation-range: entry 150svh entry 160svh;
   }
 }
 
@@ -777,68 +710,9 @@ img.reef {
   padding-top: var(--avoid-navbar);
 }
 
-#announcements {
-  position: fixed;
-  inset: 0;
-
-  will-change: transform, opacity;
-  animation: lift-out var(--ease-elastic) both;
-  animation-timeline: view();
-  animation-range: exit 100% cover 300%;
-}
-
-@keyframes lift-out {
-  from {
-    transform: translateY(0);
-    opacity: 1;
-  }
+@keyframes wireframeWipe {
   to {
-    transform: translateY(-100svh);
-    opacity: 0;
-  }
-}
-
-.left-in-out {
-  will-change: transform;
-  animation: left-in-out linear both;
-  animation-timeline: view();
-  animation-range: entry 0% exit 100%;
-}
-
-.right-in-out {
-  will-change: transform;
-  animation: right-in-out linear both;
-  animation-timeline: view();
-  animation-range: entry 0% exit 100%;
-}
-
-@keyframes left-in-out {
-  0% {
-    translate: -100% 0;
-  }
-  20% {
-    translate: 0 0;
-  }
-  80% {
-    translate: -60% 0;
-  }
-  100% {
-    translate: -100% 0;
-  }
-}
-
-@keyframes right-in-out {
-  0% {
-    translate: 100% 0;
-  }
-  20% {
-    translate: 0 0;
-  }
-  80% {
-    translate: 60% 0;
-  }
-  100% {
-    translate: 100% 0;
+    mask-position: 0 100svh;
   }
 }
 

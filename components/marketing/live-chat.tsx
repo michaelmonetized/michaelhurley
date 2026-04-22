@@ -17,6 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   loadMichaelHurleyChatFromStorage,
   saveMichaelHurleyChatToStorage,
@@ -282,28 +283,21 @@ export default function LiveChat({
           showCloseButton
           className="flex flex-col sm:max-w-[24rem] z-[10001]"
         >
-          <SheetHeader className="border-b">
-            <SheetTitle className="flex items-center gap-2">
-              <span
-                className="inline-block size-2 rounded-full bg-emerald-500"
-                aria-hidden
-              />
-              Profile assistant
-            </SheetTitle>
-            <SheetDescription>
-              Powered by OpenRouter. Ask about Michael Hurley&apos;s background,
-              career, and skills. History is saved on this device.
-            </SheetDescription>
-            {!apiConfigured ? (
-              <p className="text-xs text-destructive" role="status">
-                Chat is offline: set{" "}
-                <span className="font-mono">OPENROUTER_API_KEY</span> (and
-                optionally <span className="font-mono">OPENROUTER_MODEL</span>)
-                in <span className="font-mono">.env.local</span>, then restart
-                dev.
-              </p>
-            ) : null}
-          </SheetHeader>
+          <VisuallyHidden.Root>
+            <SheetHeader className="border-b">
+              <SheetTitle className="flex items-center gap-2">
+                <span
+                  className="inline-block size-2 rounded-full bg-emerald-500"
+                  aria-hidden
+                />
+                Profile assistant
+              </SheetTitle>
+              <SheetDescription>
+                Powered by OpenRouter. Ask about Michael Hurley&apos;s background,
+                career, and skills. History is saved on this device.
+              </SheetDescription>
+            </SheetHeader>
+          </VisuallyHidden.Root>
 
           <div
             role="log"

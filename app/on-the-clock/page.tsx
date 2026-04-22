@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { PageShell } from "@/components/michaelhurley/layout-shell";
 import { WaveText, MarkIcon } from "@/components/michaelhurley/shared";
 import { skillGroups, developmentGroups } from "@/components/michaelhurley/data";
@@ -7,7 +10,12 @@ export default function OnTheClockPage() {
     <PageShell>
       <section className="p-xl max-w-7xl mx-auto min-h-svh flex flex-col justify-center">
         <div className="flex flex-col md:flex-row gap-4x items-start">
-          <div className="w-full md:w-1/3 sticky top-32">
+          <motion.div 
+            className="w-full md:w-1/3 sticky top-32"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
             <h1 className="text-9xl font-black uppercase leading-none">
               <WaveText text="On" />
               <br />
@@ -21,23 +29,35 @@ export default function OnTheClockPage() {
             <div className="mt-2xl">
               <MarkIcon className="h-4x w-auto opacity-20" />
             </div>
-          </div>
+          </motion.div>
           
           <div className="w-full md:w-2/3 space-y-4x">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2xl">
-              {skillGroups.map((group) => (
-                <div key={group.title} className="border-t-4 border-foreground pt-xl">
+              {skillGroups.map((group, index) => (
+                <motion.div 
+                  key={group.title} 
+                  className="border-t-4 border-foreground pt-xl"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
                   <h2 className="text-4xl font-black uppercase mb-lg">{group.title}</h2>
                   <ul className="space-y-sm text-xl opacity-80">
                     {group.items.map((item) => (
                       <li key={item}>• {item}</li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
               ))}
             </div>
 
-            <div className="border-t-4 border-primary pt-xl bg-primary/5 p-xl">
+            <motion.div 
+              className="border-t-4 border-primary pt-xl bg-primary/5 p-xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+            >
               <h2 className="text-5xl font-black uppercase mb-xl">Senior Engineering</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
                 {developmentGroups.map((group) => (
@@ -51,7 +71,7 @@ export default function OnTheClockPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
