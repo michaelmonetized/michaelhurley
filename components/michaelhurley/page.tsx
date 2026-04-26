@@ -2,13 +2,14 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   developmentGroups,
   galleryCards,
   heroFlashNames,
+  menuImages,
   skillGroups,
   timelineEntries,
   type TimelineDoublePhotoEntry,
@@ -24,11 +25,8 @@ import {
   MarkIcon,
   SignatureMark,
   WaveText,
+  Wordmark,
 } from "@/components/michaelhurley/shared";
-import {
-  SiteFooter,
-  SiteNav,
-} from "@/components/michaelhurley/layout-shell";
 
 const groupedGalleryCards = Array.from({ length: 4 }, (_, columnIndex) =>
   galleryCards.filter((_, index) => index % 4 === columnIndex),
@@ -48,6 +46,86 @@ function getCalendarWeeksSince(startDate: Date, endDate = new Date()) {
   const endWeek = startOfWeek(endDate);
 
   return Math.round((endWeek.getTime() - startWeek.getTime()) / MS_PER_WEEK);
+}
+
+function HomeNav() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
+  const menuLinks = [
+    { href: "#top", label: "Home" },
+    { href: "/on-the-clock", label: "On the clock" },
+    { href: "/off-the-clock", label: "Off the clock" },
+    { href: "/calendar", label: "Calendar" },
+  ] as const;
+
+  return (
+    <section
+      id="navbar"
+      className="p-2x fixed top-0 inset-inline-0 w-full flex justify-between items-center"
+    >
+      <div
+        id="logo"
+        className="animate-fadeInUp"
+        style={{ "--fade-delay": "250ms" } as CSSProperties}
+      >
+        <a href="#top" aria-label="Jump to home">
+          <Wordmark />
+        </a>
+      </div>
+
+      <div id="menu">
+        <label
+          className="menu-trigger relative animate-fadeInUp"
+          style={{ "--fade-delay": "500ms" } as CSSProperties}
+        >
+          <span className="menu-icon h-8x w-8x flex flex-col gap-xl p-xl border-foreground border-4 rounded-xl place-content-center block">
+            <hr />
+            <hr />
+          </span>
+          <input
+            type="checkbox"
+            name="menu-state"
+            className="menu-state"
+            checked={isMenuOpen}
+            aria-label="Toggle site navigation"
+            onChange={(event) => setIsMenuOpen(event.target.checked)}
+          />
+        </label>
+
+        <nav
+          id="sheet-menu"
+          aria-hidden={!isMenuOpen}
+          className="fixed inset-0 p-4x bg-crust z-50 flex gap-4x place-items-center place-content-center h-svh w-svw"
+        >
+          <div className="flex flex-wrap w-1/3">
+            {menuImages.map((image) => (
+              <div key={image.src} className="w-1/2 p-xl">
+                <img src={image.src} alt={image.alt} className={image.className} />
+              </div>
+            ))}
+          </div>
+
+          <ul className="w-2/3 text-center uppercase p-xl">
+            {menuLinks.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  onClick={closeMenu}
+                  tabIndex={isMenuOpen ? undefined : -1}
+                >
+                  <WaveText text={link.label} className="text-7xl" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </section>
+  );
 }
 
 function HeroSection() {
@@ -73,10 +151,10 @@ function HeroSection() {
       style={{ scale, opacity, y, filter: grayscale }}
     >
       <div
-        className="hero-icon h-2x fixed text-center inset-inline-0"
+        className="hero-icon h-2x animate-fadeInUp t-5vh fixed text-center inset-inline-0"
         style={{ "--fade-delay": "0ms" } as CSSProperties}
       >
-        <MarkIcon className="h-full w-auto animate-fadeInUp" />
+        <MarkIcon className="mx-auto block h-full w-auto" />
       </div>
 
       <div className="hero-flashes">
@@ -86,8 +164,8 @@ function HeroSection() {
             className={`hero-flash hero-flash-${name}`}
             style={
               {
-                "--hero-flash-duration": flashDuration,
                 "--hero-flash-delay": `${6 + index * 3}s`,
+                "--hero-flash-duration": flashDuration,
               } as CSSProperties
             }
           />
@@ -99,7 +177,7 @@ function HeroSection() {
 
       <div
         id="hero-next-pos"
-        className="fixed m-2x"
+        className="fixed m-2x animate-fadeInUp"
         style={{ "--fade-delay": "250ms" } as CSSProperties}
       >
         <svg
@@ -116,12 +194,10 @@ function HeroSection() {
             className="draw-stroke animate-draw-stroke"
           />
         </svg>
-
-        <p className="-mt-sm animate-fadeInUp" style={{ "--fade-delay": "500ms" } as CSSProperties}>
+        <p className="-mt-sm">
           <small>current</small>
         </p>
-
-        <div className="flex flex-col gap-0 relative p-lg pt-xl animate-fadeInUp" style={{ "--fade-delay": "750ms" } as CSSProperties}>
+        <div className="flex flex-col gap-0 relative p-lg pt-xl">
           <p className="text-center shrink" id="vizible-icon-wrapper">
             <span className="block spin3d">
               <img
@@ -137,8 +213,7 @@ function HeroSection() {
                 alt="Vizible logo"
               />
             </span>
-            <br />
-            SALES
+            <br /> SALES
           </p>
           <hr />
           <p className="relative grow place-content-center place-items-center text-center">
@@ -246,14 +321,109 @@ function SummarySection({ yearsExperience }: { yearsExperience: number }) {
       </p>
       <p className="text-7xl text-pretty max-w-4xl mx-auto p-md font-black">
         business operations and technology professional with over{" "}
-        <span>{yearsExperience}</span> years experience in management, sales,
-        marketing + growth, graphic design, and software development.
+        <span className="since99">{yearsExperience}</span> years experience in
+        management, sales, marketing + growth, graphic design, and software
+        development.
       </p>
-      <div className="hero-icon h-2x text-center m-xl">
-        <MarkIcon className="h-full w-auto" />
+      <div className="hero-icon h-2x animate-fadeInUp text-center m-xl">
+        <MarkIcon className="mx-auto block h-full w-auto" />
       </div>
     </motion.section>
   );
+}
+
+function renderRoleMeta(meta: string) {
+  if (meta.startsWith("Acquired ")) {
+    return (
+      <>
+        <strong>Acquired</strong> {meta.replace(/^Acquired /, "")}
+      </>
+    );
+  }
+
+  if (meta.includes(", ")) {
+    const [first, ...rest] = meta.split(", ");
+    return (
+      <>
+        <strong>{first}</strong>, {rest.join(", ")}
+      </>
+    );
+  }
+
+  if (meta.includes("$")) {
+    const matches = [...meta.matchAll(/\$[0-9.]+[A-Za-z+]*\/?[A-Za-z]*/g)];
+    const lastMatch = matches.at(-1);
+
+    if (lastMatch && lastMatch.index !== undefined) {
+      const amount = lastMatch[0];
+      const start = lastMatch.index;
+      const end = start + amount.length;
+
+      return (
+        <>
+          {meta.slice(0, start)}
+          <strong>{amount}</strong>
+          {meta.slice(end)}
+        </>
+      );
+    }
+  }
+
+  return meta;
+}
+
+function renderRoleHeader(roleEntry: TimelineRoleEntry) {
+  const logo = roleEntry.logoSrc ? (
+    <img
+      src={roleEntry.logoSrc}
+      alt={roleEntry.logoAlt ?? `${roleEntry.company} logo`}
+      className={roleEntry.logoClassName}
+    />
+  ) : null;
+
+  switch (roleEntry.company) {
+    case "Hustle Launch":
+      return (
+        <h3 className="text-md font-bold">
+          {logo} <br />
+          <strong>{roleEntry.company}</strong>
+        </h3>
+      );
+    case "Kaibo, LLC D/B/A Realay.com":
+      return (
+        <h3 className="text-md font-bold">
+          <strong>{roleEntry.company}</strong>
+          <br />
+          {logo}
+        </h3>
+      );
+    case "Papa John's Waynesville/Franklin, NC":
+    case "StudioTWLEVE":
+    case "Corporate Cleaning Services, Inc.":
+      return (
+        <>
+          <p>{logo}</p>
+          <h3 className="text-md font-bold">
+            <strong>{roleEntry.company}</strong>
+          </h3>
+        </>
+      );
+    case "Hurley's Creekside Dining & Rhum Bar":
+      return (
+        <>
+          <h3 className="text-md font-bold">
+            <strong>{roleEntry.company}</strong>
+          </h3>
+          <p>{logo}</p>
+        </>
+      );
+    default:
+      return (
+        <h3 className="text-md font-bold">
+          <strong>{roleEntry.company}</strong>
+        </h3>
+      );
+  }
 }
 
 function TimelineCard({ entry }: { entry: TimelineEntry }) {
@@ -262,11 +432,7 @@ function TimelineCard({ entry }: { entry: TimelineEntry }) {
     return (
       <div className="flex flex-col items-stretch justify-start p-xl relative scroll-marquee-item">
         <p>{photoEntry.title}</p>
-        <img
-          src={photoEntry.src}
-          alt={photoEntry.title}
-          className={photoEntry.imageClassName}
-        />
+        <img src={photoEntry.src} alt={photoEntry.title} className={photoEntry.imageClassName} />
       </div>
     );
   }
@@ -278,11 +444,7 @@ function TimelineCard({ entry }: { entry: TimelineEntry }) {
         {doublePhotoEntry.photos.map((photo) => (
           <div key={photo.src} className="p-xl relative">
             <p>{photo.title}</p>
-            <img
-              src={photo.src}
-              alt={photo.title}
-              className={photo.imageClassName}
-            />
+            <img src={photo.src} alt={photo.title} className={photo.imageClassName} />
           </div>
         ))}
       </div>
@@ -290,24 +452,13 @@ function TimelineCard({ entry }: { entry: TimelineEntry }) {
   }
 
   const roleEntry = entry as TimelineRoleEntry;
+
   return (
     <div className="flex flex-col items-stretch justify-start p-xl relative scroll-marquee-item">
-      {roleEntry.logoSrc && roleEntry.logoPlacement === "header" ? (
-        <p>
-          <img
-            src={roleEntry.logoSrc}
-            alt={`${roleEntry.company} logo`}
-            className={roleEntry.logoClassName}
-          />
-        </p>
-      ) : null}
-
-      <h3 className="text-md font-bold">
-        <strong>{roleEntry.company}</strong>
-      </h3>
+      {renderRoleHeader(roleEntry)}
 
       {roleEntry.meta.map((meta) => (
-        <p key={`${roleEntry.company}-${meta}`}>{meta}</p>
+        <p key={`${roleEntry.company}-${meta}`}>{renderRoleMeta(meta)}</p>
       ))}
 
       <ul className="list-disc ml-md">
@@ -320,7 +471,7 @@ function TimelineCard({ entry }: { entry: TimelineEntry }) {
         <p>
           <img
             src={roleEntry.logoSrc}
-            alt={`${roleEntry.company} logo`}
+            alt={roleEntry.logoAlt ?? `${roleEntry.company} logo`}
             className={roleEntry.logoClassName}
           />
         </p>
@@ -366,6 +517,7 @@ function ClockSection() {
 
   return (
     <section ref={containerRef} id="clock">
+      <div id="calendar" aria-hidden />
       <div className="grid grid-cols-4 place-items-stretch place-content-stretch uppercase h-svh w-svw overflow-hidden">
         <div className="flex flex-col place-items-end place-content-end grow">
           <motion.img
@@ -380,7 +532,7 @@ function ClockSection() {
             Off <small className="block text-4xl">The Clock</small>
           </h2>
           <a
-            href="#off-the-clock"
+            href="/off-the-clock"
             className="animate-hover-background-drop animate-hover-spin-icon-180 p-xl block border-4 w-fit rounded-xl ml-auto"
           >
             <span className="relative">⏎</span>
@@ -391,7 +543,7 @@ function ClockSection() {
             On <small className="block text-4xl">The Clock</small>
           </h2>
           <a
-            href="#on-the-clock"
+            href="/on-the-clock"
             className="animate-hover-background-drop animate-hover-spin-icon-180 p-xl block border-4 w-fit rounded-xl"
           >
             <span className="relative rotate-180">⏎</span>
@@ -439,8 +591,9 @@ function SkillsSection({ averageWorkHours }: { averageWorkHours: string }) {
         >
           <h2>Proven Skills</h2>
           <p>
-            <span>{averageWorkHours}</span> hours of active, professional career
-            experience in management, technology, marketing and sales.
+            <span className="average-work-hours">{averageWorkHours}</span> hours
+            of active, professional career experience in management, technology,
+            marketing and sales.
           </p>
 
           <div className="flex flex-col items-stretch justify-start gap-xl grow w-full">
@@ -459,11 +612,13 @@ function SkillsSection({ averageWorkHours }: { averageWorkHours: string }) {
             ))}
 
             <div className="flex flex-col items-stretch justify-start grow w-full gap-xl">
-              <h2>Full-Stack Development + Senior-Level Software Engineering</h2>
+              <h2>Full-Stack Development + Sr. Level Software Engineering</h2>
               <p>
-                Proficient in C, C-derivative languages, scripting languages,
-                web technologies, app development, and the tooling around them.
+                Proficient in C, C derivative languages, Scripting languages,
+                Web technologies, App development and tools associated with
+                these:
               </p>
+
               {developmentGroups.map((group) => (
                 <div key={group.title}>
                   <h3>{group.title}</h3>
@@ -483,19 +638,19 @@ function SkillsSection({ averageWorkHours }: { averageWorkHours: string }) {
 }
 
 function GalleryProjectCard({
-  title,
-  subtitle,
+  accent,
   liveUrl,
   repoUrl,
   screenshotSrc,
-  accent,
+  subtitle,
+  title,
 }: {
-  title: string;
-  subtitle: string;
+  accent: string;
   liveUrl: string;
   repoUrl: string;
   screenshotSrc: string;
-  accent: string;
+  subtitle: string;
+  title: string;
 }) {
   return (
     <motion.div
@@ -534,17 +689,19 @@ function GalleryProjectCard({
 
         <div className="gallery-item-inner relative">
           <div className="gallery-item-screenshot relative">
-            <div className="gallery-item-screenshot-inner grid place-items-center center place-content-center text-center">
-              <div className="galler-ietm-links">
+            <div className="gallery-item-screenshot-inner grid place-items-center place-content-center text-center">
+              <div className="gallery-item-links">
                 <a
                   href={liveUrl}
                   target="_blank"
                   rel="noreferrer"
+                  aria-label={`${title} live site`}
                 />
                 <a
                   href={repoUrl}
                   target="_blank"
                   rel="noreferrer"
+                  aria-label={`${title} source code`}
                 />
               </div>
               <img src={screenshotSrc} className="block object-cover" alt={title} />
@@ -574,9 +731,7 @@ function GallerySection() {
           <h2 className="title font-black text-7xl uppercase">
             Frontend
             <br />
-            <small className="subttitle text-7xl text-primary">
-              Hall of Fame
-            </small>
+            <small className="subtitle text-7xl text-primary">Hall of Fame</small>
           </h2>
         </div>
         <div className="w-1/2 p-xl">
@@ -601,7 +756,15 @@ function GallerySection() {
             )}
           >
             {column.map((card) => (
-              <GalleryProjectCard key={card.id} {...card} />
+              <GalleryProjectCard
+                key={card.id}
+                accent={card.accent}
+                liveUrl={card.liveUrl}
+                repoUrl={card.repoUrl}
+                screenshotSrc={card.screenshotSrc}
+                subtitle={card.subtitle}
+                title={card.title}
+              />
             ))}
           </div>
         ))}
@@ -620,7 +783,7 @@ export default function MichaelHurleyPage() {
   return (
     <div id="top">
       <HeroSection />
-      <SiteNav />
+      <HomeNav />
       <GooBackgroundCanvas />
 
       <main role="main" id="main" className="min-h-dvh relative">
@@ -631,8 +794,6 @@ export default function MichaelHurleyPage() {
         <SkillsSection averageWorkHours={averageWorkHours} />
         <GallerySection />
       </main>
-
-      <SiteFooter />
 
       <svg width="0" height="0" aria-hidden className="absolute">
         <defs>

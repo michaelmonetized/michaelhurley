@@ -4,6 +4,7 @@ import * as React from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { ArrowClockwiseIcon, CopySimpleIcon } from "@phosphor-icons/react";
+import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -173,6 +174,7 @@ export default function LiveChat({
   className?: string;
   apiConfigured?: boolean;
 }) {
+  const pathname = usePathname();
   const [inputValue, setInputValue] = React.useState("");
   const [storageReady, setStorageReady] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -250,6 +252,10 @@ export default function LiveChat({
   );
 
   const canSend = apiConfigured && !busy && inputValue.trim().length > 0;
+
+  if (pathname === "/") {
+    return null;
+  }
 
   return (
     <div className={cn("fixed right-6 bottom-6 z-[10000]", className)}>

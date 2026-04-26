@@ -32,7 +32,15 @@ body {
   overflow-y: auto !important;
 }
 
+html {
+  position: relative;
+  scroll-behavior: smooth;
+}
+
 body {
+  position: relative;
+  overflow: clip;
+  overflow-y: auto;
   overflow-x: hidden;
   background-color: var(--background);
 }
@@ -397,6 +405,7 @@ img.reef {
         }
       }
     }
+
   }
 }
 
@@ -453,10 +462,19 @@ img.reef {
     padding: 0;
     height: 0.86em;
     line-height: 0.86em;
-    translate: 0 0.86em;
+    translate: 0 0;
+  }
+}
 
-    animation: wave-text-in 20s var(--ease-wave) both;
-    animation-delay: var(--char-delay, 100ms);
+@supports (animation-timeline: view()) {
+  .wave-text-in {
+    b {
+      translate: 0 0.86em;
+      animation: wave-text-in 20s var(--ease-wave) both;
+      animation-delay: var(--char-delay, 100ms);
+      animation-timeline: view();
+      animation-range: entry 120svh entry 145svh;
+    }
   }
 }
 
@@ -618,6 +636,10 @@ img.reef {
 
   width: max-content;
   will-change: transform;
+
+  animation: scroll-marquee linear both;
+  animation-timeline: view();
+  animation-range: entry 133% exit 0%;
 }
 
 .scroll-marquee-item {
@@ -678,6 +700,8 @@ img.reef {
   z-index: 1010;
 
   animation: draw-on-scroll linear both;
+  animation-timeline: view();
+  animation-range: entry 150svh entry 160svh;
 }
 
 @keyframes draw-on-scroll {
@@ -692,6 +716,8 @@ img.reef {
 
   path {
     mask-image: url("/profile/logo-mask.svg");
+    animation-timeline: view();
+    animation-range: entry 150svh entry 160svh;
   }
 }
 
@@ -710,9 +736,24 @@ img.reef {
   padding-top: var(--avoid-navbar);
 }
 
-@keyframes wireframeWipe {
+#announcements {
+  position: fixed;
+  inset: 0;
+  will-change: transform, opacity;
+
+  animation: lift-out var(--ease-elastic) both;
+  animation-timeline: view();
+  animation-range: exit 100% cover 300%;
+}
+
+@keyframes lift-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
   to {
-    mask-position: 0 100svh;
+    transform: translateY(-100%);
+    opacity: 0;
   }
 }
 
@@ -830,6 +871,18 @@ img.reef {
   margin-top: 300px;
 }
 
+.gallery-item-links {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  a {
+    display: block;
+  }
+}
+
 .gallery-item {
   width: 100%;
 
@@ -867,9 +920,21 @@ img.reef {
     }
   }
 
-  .gallery-item-logo svg {
-    fill: currentcolor;
-    scale: 0.5;
+  .gallery-item-logo {
+    aspect-ratio: 407 / 411;
+    display: grid;
+    place-items: center;
+    padding: var(--text-xl);
+
+    img,
+    svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      fill: currentcolor;
+      scale: 0.5;
+      transform-origin: center;
+    }
   }
 
   .gallery-item-outer {
@@ -911,6 +976,54 @@ img.reef {
     .gallery-item-screenshot img {
       mask-size: 600% 600%;
       mask-position: center;
+    }
+  }
+}
+
+@media (max-width: 960px) {
+  :root {
+    --avoid-navbar: calc(160px + 1em);
+  }
+
+  #sky {
+    > div:last-child {
+      padding-inline: var(--text-lg);
+    }
+  }
+
+  .gallery-column:nth-child(even) {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  #navbar {
+    #sheet-menu {
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+  }
+
+  #summary {
+    padding-top: calc(var(--avoid-navbar) - 2rem);
+  }
+
+  #timeline {
+    height: 320svh;
+  }
+
+  .scroll-marquee-item {
+    min-width: 85svw;
+  }
+
+  .gallery-item {
+    .gallery-item-logo {
+      padding: var(--text-lg);
+
+      img,
+      svg {
+        scale: 0.68;
+      }
     }
   }
 }

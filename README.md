@@ -20,7 +20,7 @@ This does more than plain `next dev`:
 
 - computes a stable hostname from the repo name
 - writes a per-project Caddy snippet
-- reloads Caddy
+- reloads Caddy, or starts it if the admin API is not already running
 - starts Next on an internal high port
 
 For this repo, the local URL is:
@@ -130,12 +130,10 @@ Without `OPENROUTER_API_KEY`, the chat route returns a `503` and the layout stil
 
 ## Local Dev Requirements
 
-- `caddy` must be installed and running from `~/.local/etc/Caddyfile`
-- the top-level Caddyfile must include:
-
-```caddyfile
-import ~/.local/etc/caddy/dev-sites/*.caddy
-```
+- `caddy` must be installed
+- `bun run dev` manages `~/.local/etc/Caddyfile` and `~/.local/etc/caddy/dev-sites/*.caddy` automatically
+- if you maintain the top-level Caddyfile manually, the import must use the fully resolved home path, not `~`
+- on the first local HTTPS startup, Caddy may prompt for your macOS password so it can finish local trust or privileged-port setup
 
 - this repo expects dev traffic to arrive through the repo-scoped `.localhost` hostname above, not `localhost:3000`
 
