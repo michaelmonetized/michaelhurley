@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "@/components/link";
@@ -84,10 +84,6 @@ export function SiteNav() {
           { href: "/off-the-clock", kind: "route", label: "Off the clock" },
           { href: "/calendar", kind: "route", label: "Calendar" },
         ];
-
-  React.useEffect(() => {
-    setIsMenuOpen(false);
-  }, [pathname]);
 
   React.useEffect(() => {
     if (!isMenuOpen) return;
@@ -176,7 +172,6 @@ export function SiteNav() {
               onClick={closeMenu}
             >
               <motion.nav
-                id="sheet-menu"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Site navigation"
@@ -184,8 +179,8 @@ export function SiteNav() {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={menuTransition}
-                className="fixed inset-0 p-4x bg-crust z-[9091] flex flex-col md:flex-row gap-4x place-items-center place-content-center h-svh w-svw overflow-y-auto"
-                onClick={(event) => {
+                className="fixed inset-y-0 right-0 p-4x bg-crust z-[9091] flex flex-col md:flex-row gap-4x place-items-center place-content-center h-svh w-full max-w-6xl overflow-y-auto shadow-2xl"
+                onClick={(event: React.MouseEvent<HTMLElement>) => {
                   event.stopPropagation();
                 }}
               >

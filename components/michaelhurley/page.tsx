@@ -2,7 +2,9 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { cn } from "@/lib/utils";
 import {
   developmentGroups,
   galleryCards,
@@ -16,7 +18,6 @@ import {
   type TimelineRoleEntry,
 } from "@/components/michaelhurley/data";
 import {
-  DrawStrokeSetup,
   GooBackgroundCanvas,
   HeroCanvas,
 } from "@/components/michaelhurley/effects";
@@ -48,12 +49,10 @@ function getCalendarWeeksSince(startDate: Date, endDate = new Date()) {
 }
 
 function HomeNav() {
-  const menuStateRef = useRef<HTMLInputElement>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const closeMenu = () => {
-    if (menuStateRef.current) {
-      menuStateRef.current.checked = false;
-    }
+    setIsMenuOpen(false);
   };
 
   const menuLinks = [
@@ -88,16 +87,18 @@ function HomeNav() {
             <hr />
           </span>
           <input
-            ref={menuStateRef}
             type="checkbox"
             name="menu-state"
             className="menu-state"
+            checked={isMenuOpen}
             aria-label="Toggle site navigation"
+            onChange={(event) => setIsMenuOpen(event.target.checked)}
           />
         </label>
 
         <nav
           id="sheet-menu"
+          aria-hidden={!isMenuOpen}
           className="fixed inset-0 p-4x bg-crust z-50 flex gap-4x place-items-center place-content-center h-svh w-svw"
         >
           <div className="flex flex-wrap w-1/3">
@@ -111,7 +112,11 @@ function HomeNav() {
           <ul className="w-2/3 text-center uppercase p-xl">
             {menuLinks.map((link) => (
               <li key={link.href}>
-                <a href={link.href} onClick={closeMenu}>
+                <a
+                  href={link.href}
+                  onClick={closeMenu}
+                  tabIndex={isMenuOpen ? undefined : -1}
+                >
                   <WaveText text={link.label} className="text-7xl" />
                 </a>
               </li>
@@ -124,10 +129,27 @@ function HomeNav() {
 }
 
 function HeroSection() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
+
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.2]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 0.51], [1, 1, 0]);
+  const y = useTransform(scrollYProgress, [0, 0.5], ["0%", "50%"]);
+  const grayscale = useTransform(scrollYProgress, [0, 0.5], ["grayscale(0%)", "grayscale(100%)"]);
+
   const flashDuration = `${6 + heroFlashNames.length * 6}s`;
 
   return (
-    <header id="hero" role="banner" className="hero-wrapper">
+    <motion.header
+      ref={containerRef}
+      id="hero"
+      role="banner"
+      className="hero-wrapper relative h-svh w-svw"
+      style={{ scale, opacity, y, filter: grayscale }}
+    >
       <div
         className="hero-icon h-2x animate-fadeInUp t-5vh fixed text-center inset-inline-0"
         style={{ "--fade-delay": "0ms" } as CSSProperties}
@@ -201,69 +223,96 @@ function HeroSection() {
           </p>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
 
 function AnnouncementSection() {
-  return (
-    <section
-      id="announcements"
-      className="text-center sticky inset-0 h-svh w-svw place-items-center place-content-center"
-    >
-      <div
-        id="announcements-icon"
-        className="fixed inset-0 h-svh w-svw place-content-center place-items-center"
-      >
-        <MarkIcon className="h-2x animate-fadeInUp" />
-        <p className="text-center">
-          <small>
-            <WaveText text="Message from Michael C Hurley" incoming />
-          </small>
-        </p>
-      </div>
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
 
-      <div
-        id="announcments-banner"
-        className="fixed inset-0 h-svh w-svw place-content-center place-items-center"
+  const liftY = useTransform(scrollYProgress, [0.5, 1], ["0%", "-100%"]);
+  const liftOpacity = useTransform(scrollYProgress, [0.5, 1], [1, 0]);
+  const pathLength = useTransform(scrollYProgress, [0.1, 0.4], [0, 1]);
+
+  return (
+    <div ref={containerRef} className="h-[200svh] pointer-events-none relative">
+      <motion.section
+        id="announcements"
+        className="text-center fixed inset-0 h-svh w-svw place-items-center place-content-center z-[1000]"
+        style={{ y: liftY, opacity: liftOpacity }}
       >
-        <div className="marquee-container text-7xl font-black text-center">
-          <div className="infinite-marquee marquee-direction-right" aria-hidden>
-            {Array.from({ length: 84 }, (_, index) => (
-              <span key={index}>&nbsp;I DID IT •&nbsp;</span>
-            ))}
-          </div>
-          <div className="infinite-marquee marquee-direction-left" aria-hidden>
-            {Array.from({ length: 6 }, (_, index) => (
-              <span key={index}>
-                BESTWNC LAUNCHED • UNCAP.US LAUNCHED • GETAT.ME LAUNCHED •
-                HURLEYUS LAUNCHED • REAFERRAL.com LAUNCHED •
-              </span>
-            ))}
+        <div
+          id="announcements-icon"
+          className="fixed inset-0 grid h-svh w-svw place-content-center place-items-center"
+        >
+          <MarkIcon className="hero-icon h-2x animate-fadeInUp" />
+          <p className="text-center">
+            <small>
+              <WaveText text="Message from Michael C Hurley" incoming />
+            </small>
+          </p>
+        </div>
+
+        <div
+          id="announcments-banner"
+          className="fixed inset-0 grid h-svh w-svw place-content-center place-items-center"
+        >
+          <div className="marquee-container text-7xl font-black text-center">
+            <div className="infinite-marquee marquee-direction-right" aria-hidden>
+              {Array.from({ length: 42 }, (_, index) => (
+                <span key={index}>&nbsp;I DID IT •&nbsp;</span>
+              ))}
+            </div>
+            <div className="infinite-marquee marquee-direction-left" aria-hidden>
+              {Array.from({ length: 6 }, (_, index) => (
+                <span key={index}>
+                  BESTWNC LAUNCHED • UNCAP.US LAUNCHED • GETAT.ME LAUNCHED •
+                  HURLEYUS LAUNCHED • REAFERRAL.com LAUNCHED •
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div id="announcements-photo" className="scale-1/5 fixed inset-0">
-        <img
-          src="/profile/landscape-night.jpeg"
-          className="object-cover object-left-bottom h-svh w-svw grayscale"
-          alt=""
-        />
-      </div>
+        <div id="announcements-photo" className="scale-1/5 fixed inset-0">
+          <img
+            src="/profile/landscape-night.jpeg"
+            className="object-cover object-left-bottom h-svh w-svw grayscale"
+            alt=""
+          />
+        </div>
 
-      <div id="signature" className="fixed inset-0 text-sapphire scale-1/2">
-        <SignatureMark />
-      </div>
-    </section>
+        <motion.div
+          id="signature"
+          className="fixed inset-0 text-sapphire scale-1/2 flex items-center justify-center"
+        >
+          <SignatureMark progress={pathLength} />
+        </motion.div>
+      </motion.section>
+    </div>
   );
 }
 
 function SummarySection({ yearsExperience }: { yearsExperience: number }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+
   return (
-    <section
+    <motion.section
+      ref={containerRef}
       id="summary"
-      className="p-xl w-svw relative place-content-center place-items-center text-center"
+      className="p-xl w-svw relative place-content-center place-items-center text-center py-[20svh]"
+      style={{ opacity, y }}
     >
       <p className="place-content-center place-items-center text-center relative">
         <img src="/profile/reef.png" className="absolute reef" alt="" />
@@ -279,7 +328,7 @@ function SummarySection({ yearsExperience }: { yearsExperience: number }) {
       <div className="hero-icon h-2x animate-fadeInUp text-center m-xl">
         <MarkIcon className="mx-auto block h-full w-auto" />
       </div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -327,7 +376,7 @@ function renderRoleHeader(roleEntry: TimelineRoleEntry) {
   const logo = roleEntry.logoSrc ? (
     <img
       src={roleEntry.logoSrc}
-      alt={`${roleEntry.company} logo`}
+      alt={roleEntry.logoAlt ?? `${roleEntry.company} logo`}
       className={roleEntry.logoClassName}
     />
   ) : null;
@@ -422,7 +471,7 @@ function TimelineCard({ entry }: { entry: TimelineEntry }) {
         <p>
           <img
             src={roleEntry.logoSrc}
-            alt={`${roleEntry.company} logo`}
+            alt={roleEntry.logoAlt ?? `${roleEntry.company} logo`}
             className={roleEntry.logoClassName}
           />
         </p>
@@ -432,38 +481,49 @@ function TimelineCard({ entry }: { entry: TimelineEntry }) {
 }
 
 function TimelineSection() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-100%"]);
+
   return (
-    <section id="timeline" className="relative">
-      <div className="scroll-marquee-container">
-        <div className="flex gap-xl items-stretch justify-start text-left w-max-content scroll-marquee relative">
+    <section ref={containerRef} id="timeline" className="relative h-[400svh]">
+      <div className="sticky top-0 h-svh w-svw overflow-hidden flex items-center">
+        <motion.div
+          className="flex gap-xl items-stretch justify-start text-left w-max-content relative px-svw"
+          style={{ x }}
+        >
           {timelineEntries.map((entry, index) => (
             <TimelineCard key={`${entry.kind}-${index}`} entry={entry} />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
 
 function ClockSection() {
-  const clockImageStyle = {
-    width: "100%",
-    height: "auto",
-    alignSelf: "end",
-    placeSelf: "end",
-    justifySelf: "end",
-    marginTop: "auto",
-  } as CSSProperties;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const leftX = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], ["-100%", "0%", "-60%", "-100%"]);
+  const rightX = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], ["100%", "0%", "60%", "100%"]);
 
   return (
-    <section id="clock">
-      <div id="calendar" className="absolute top-0" aria-hidden />
-      <div className="grid grid-cols-4 place-items-stretch place-content-stretch uppercase">
+    <section ref={containerRef} id="clock">
+      <div id="calendar" aria-hidden />
+      <div className="grid grid-cols-4 place-items-stretch place-content-stretch uppercase h-svh w-svw overflow-hidden">
         <div className="flex flex-col place-items-end place-content-end grow">
-          <img
-            className="left-in-out"
+          <motion.img
+            className="w-full h-auto"
             src="/profile/michael-off.png"
-            style={clockImageStyle}
+            style={{ x: leftX }}
             alt="Michael Hurley off the clock"
           />
         </div>
@@ -490,10 +550,10 @@ function ClockSection() {
           </a>
         </div>
         <div className="flex flex-col place-items-end place-content-end grow">
-          <img
-            className="right-in-out"
+          <motion.img
+            className="w-full h-auto"
             src="/profile/michael-right.png"
-            style={clockImageStyle}
+            style={{ x: rightX }}
             alt="Michael Hurley on the clock"
           />
         </div>
@@ -503,21 +563,31 @@ function ClockSection() {
 }
 
 function SkillsSection({ averageWorkHours }: { averageWorkHours: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const skyOpacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.3, 0.6, 0.6, 0.3]);
+
   return (
-    <section id="sky">
-      <div className="w-svw h-svh sticky inset-0" style={{ overflow: "clip" }}>
+    <section ref={containerRef} id="sky" className="relative">
+      <motion.div
+        className="w-svw h-svh sticky top-0 overflow-hidden -z-10"
+        style={{ opacity: skyOpacity }}
+      >
         <img
           src="/profile/photos/sky.jpeg"
-          className="block object-cover h-svh w-svw object-left-bottom"
-          style={{ filter: "blur(8px)", opacity: 0.6 }}
+          className="block object-cover h-svh w-svw object-left-bottom blur-md"
           alt=""
         />
-      </div>
+      </motion.div>
 
-      <div className="flex jesitify-end items-stretch relative p-xl">
+      <div className="flex justify-end items-stretch relative p-xl -mt-[100svh]">
         <div
           id="on-the-clock"
-          className="w-1/2 flex flex-col gap-xl p-xl avoid-navbar ml-auto"
+          className="w-1/2 flex flex-col gap-xl p-xl avoid-navbar ml-auto bg-background/40 backdrop-blur-sm"
         >
           <h2>Proven Skills</h2>
           <p>
@@ -572,16 +642,22 @@ function GalleryProjectCard({
   liveUrl,
   repoUrl,
   screenshotSrc,
+  subtitle,
   title,
 }: {
   accent: string;
   liveUrl: string;
   repoUrl: string;
   screenshotSrc: string;
+  subtitle: string;
   title: string;
 }) {
   return (
-    <div className="gallery-item w-full" style={{ "--hover-color": accent } as CSSProperties}>
+    <motion.div
+      className="gallery-item w-full"
+      style={{ "--hover-color": accent } as CSSProperties}
+      whileHover={{ y: -10 }}
+    >
       <div className="gallery-item-outer relative">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -614,7 +690,7 @@ function GalleryProjectCard({
         <div className="gallery-item-inner relative">
           <div className="gallery-item-screenshot relative">
             <div className="gallery-item-screenshot-inner grid place-items-center place-content-center text-center">
-              <div className="galler-ietm-links">
+              <div className="gallery-item-links">
                 <a
                   href={liveUrl}
                   target="_blank"
@@ -633,41 +709,52 @@ function GalleryProjectCard({
           </div>
 
           <div className="gallery-item-logo relative">
-            <img src="/profile/bar-b-que-wagon.svg" alt="Bar-B-Que Wagon logo" />
+            <div className="p-xl text-left flex flex-col justify-end min-h-[23rem]">
+              <p className="text-sm uppercase tracking-[0.2em] text-foreground/70">
+                Frontend Hall of Fame
+              </p>
+              <h3 className="text-3xl font-black">{title}</h3>
+              <p className="max-w-[16rem] text-sm text-foreground/80">{subtitle}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 function GallerySection() {
   return (
-    <section id="gallery" className="h-svh avoid-navbar max-w-7xl mx-auto">
-      <div className="p-xl flex flex-wrap gap-2xl items-center">
+    <section id="gallery" className="min-h-svh avoid-navbar max-w-7xl mx-auto py-4x">
+      <div className="p-xl flex flex-wrap gap-2xl items-center mb-4x">
         <div className="w-1/2 p-xl">
           <h2 className="title font-black text-7xl uppercase">
             Frontend
             <br />
-            <small className="subttitle text-7xl text-primary">Hall of Fame</small>
+            <small className="subtitle text-7xl text-primary">Hall of Fame</small>
           </h2>
         </div>
         <div className="w-1/2 p-xl">
-          <p>
-            From basic small local business websites to national brands and
-            global app designs. Michael Hurley&apos;s iconic engagement first
-            designs showcase his ability to tap into the psychology of
-            audiences to reach real goals.
+          <p className="text-xl">
+            From small local business websites to multi-surface product work,
+            Michael Hurley&apos;s engagement-first design decisions are built to
+            move people, not just decorate a screen.
           </p>
         </div>
       </div>
 
       <div
         id="off-the-clock"
-        className="grid grid-cols-4 gap-xl place-items-center place-content-center"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-xl"
       >
-        {groupedGalleryCards.map((column, columnIndex) => (
-          <div key={columnIndex} className="gallery-column flex flex-col gap-xl w-full">
+        {groupedGalleryCards.map((column, colIndex) => (
+          <div
+            key={colIndex}
+            className={cn(
+              "gallery-column flex flex-col gap-xl w-full",
+              colIndex % 2 !== 0 && "md:pt-[300px]"
+            )}
+          >
             {column.map((card) => (
               <GalleryProjectCard
                 key={card.id}
@@ -675,6 +762,7 @@ function GallerySection() {
                 liveUrl={card.liveUrl}
                 repoUrl={card.repoUrl}
                 screenshotSrc={card.screenshotSrc}
+                subtitle={card.subtitle}
                 title={card.title}
               />
             ))}
@@ -694,7 +782,6 @@ export default function MichaelHurleyPage() {
 
   return (
     <div id="top">
-      <DrawStrokeSetup />
       <HeroSection />
       <HomeNav />
       <GooBackgroundCanvas />
@@ -715,7 +802,7 @@ export default function MichaelHurleyPage() {
             <feColorMatrix
               in="blur"
               mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 30 -10"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 30 -15"
               result="goo"
             />
             <feBlend in="SourceGraphic" in2="goo" />

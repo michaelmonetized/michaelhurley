@@ -2,25 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-export function DrawStrokeSetup() {
-  useEffect(() => {
-    const drawPaths = document.querySelectorAll<SVGGeometryElement>(
-      ".draw-stroke, .draw-stroke-on-enter",
-    );
-
-    drawPaths.forEach((path) => {
-      try {
-        const length = path.getTotalLength();
-        path.style.setProperty("--path-length", String(length));
-      } catch {
-        path.style.setProperty("--path-length", "1000");
-      }
-    });
-  }, []);
-
-  return null;
-}
-
 export function HeroCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -386,5 +367,5 @@ export function GooBackgroundCanvas() {
     };
   }, []);
 
-  return <canvas id="goo-background" ref={canvasRef} width={100} height={100} />;
+  return <canvas id="goo-background" ref={canvasRef} width={100} height={100} style={{ pointerEvents: "none" }} />;
 }

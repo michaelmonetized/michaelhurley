@@ -1142,8 +1142,6 @@
   body {
     margin: 0;
     padding: 0;
-    max-width: 100dvw;
-    min-height: 100dvh;
     background-color: var(--background);
     color: color-mix(in srgb, var(--foreground) 70%, transparent);
     font-weight: 400;

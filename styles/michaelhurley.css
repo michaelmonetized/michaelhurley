@@ -29,6 +29,7 @@ body {
   padding: 0;
   max-width: 100svw;
   min-height: 100svh;
+  overflow-y: auto !important;
 }
 
 html {
@@ -40,7 +41,7 @@ body {
   position: relative;
   overflow: clip;
   overflow-y: auto;
-
+  overflow-x: hidden;
   background-color: var(--background);
 }
 
@@ -54,10 +55,6 @@ header#hero {
   background-position: bottom left;
   background-repeat: no-repeat;
   background-size: cover;
-
-  animation: header-hero-scale 10s linear forwards;
-  animation-timeline: view();
-  animation-range: exit 0% cover 100%;
 
   canvas#hero-canvas {
     inset: 0;
@@ -487,26 +484,6 @@ img.reef {
   }
 }
 
-@keyframes header-hero-scale {
-  50% {
-    opacity: 1;
-    scale: 0.2;
-    filter: grayscale(1);
-    translate: 0 50%;
-  }
-
-  50.01% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 0;
-    scale: 0.2;
-    filter: grayscale(1);
-    translate: 0 50%;
-  }
-}
-
 .-mt-sm {
   margin-top: -0.25em !important;
 }
@@ -528,34 +505,6 @@ img.reef {
   translate: 0 100%;
   animation: fadeInUp 1s var(--ease-wave) forwards;
   animation-delay: var(--fade-delay, 0ms);
-}
-
-.animate-view-entry {
-  animation-timeline: view();
-  animation-range:
-    entry 0%,
-    entry 5%;
-}
-
-.animate-view-exit {
-  animation-timeline: view();
-  animation-range:
-    exit 95%,
-    exit 100%;
-}
-
-.animate-scroll-entry {
-  animation-timeline: scroll(root);
-  animation-range:
-    entry 0%,
-    entry 5%;
-}
-
-.animate-scroll-exit {
-  animation-timeline: scroll(root);
-  animation-range:
-    exit 95%,
-    exit 100%;
 }
 
 @keyframes fadeInUp {
@@ -803,52 +752,8 @@ img.reef {
     opacity: 1;
   }
   to {
-    transform: translateY(-100svh);
+    transform: translateY(-100%);
     opacity: 0;
-  }
-}
-
-.left-in-out {
-  will-change: transform;
-  animation: left-in-out linear both;
-  animation-timeline: view();
-  animation-range: entry 0% exit 100%;
-}
-
-.right-in-out {
-  will-change: transform;
-  animation: right-in-out linear both;
-  animation-timeline: view();
-  animation-range: entry 0% exit 100%;
-}
-
-@keyframes left-in-out {
-  0% {
-    translate: -100% 0;
-  }
-  20% {
-    translate: 0 0;
-  }
-  80% {
-    translate: -60% 0;
-  }
-  100% {
-    translate: -100% 0;
-  }
-}
-
-@keyframes right-in-out {
-  0% {
-    translate: 100% 0;
-  }
-  20% {
-    translate: 0 0;
-  }
-  80% {
-    translate: 60% 0;
-  }
-  100% {
-    translate: 100% 0;
   }
 }
 
@@ -966,7 +871,7 @@ img.reef {
   margin-top: 300px;
 }
 
-.galler-ietm-links {
+.gallery-item-links {
   position: absolute;
   inset: 0;
   z-index: 12;

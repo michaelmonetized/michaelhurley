@@ -28,18 +28,49 @@ function ensureCaddyImport(caddyfilePath, snippetsDir) {
   const marker = "# Project dev sites";
   const existing = existsSync(caddyfilePath) ? readFileSync(caddyfilePath, "utf8") : "";
   const replacedLegacy = existing.replaceAll(legacyImportLine, importLine);
+  const lines = replacedLegacy.split(/\r?\n/);
+  const dedupedLines = [];
+  let sawImport = false;
 
-  if (replacedLegacy.includes(importLine)) {
-    if (replacedLegacy !== existing) {
-      writeFileSync(caddyfilePath, replacedLegacy, "utf8");
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const nextLine = lines[index + 1];
+
+    if (line.trim() === marker && nextLine?.trim() === importLine) {
+      if (!sawImport) {
+        dedupedLines.push(marker, importLine);
+        sawImport = true;
+      }
+
+      index += 1;
+      continue;
+    }
+
+    if (line.trim() === importLine) {
+      if (!sawImport) {
+        dedupedLines.push(importLine);
+        sawImport = true;
+      }
+
+      continue;
+    }
+
+    dedupedLines.push(line);
+  }
+
+  const deduped = `${dedupedLines.join("\n").trimEnd()}\n`;
+
+  if (sawImport) {
+    if (deduped !== existing) {
+      writeFileSync(caddyfilePath, deduped, "utf8");
     }
     return;
   }
 
-  const suffix = replacedLegacy.trimEnd().length > 0 ? "\n\n" : "";
+  const suffix = deduped.trimEnd().length > 0 ? "\n\n" : "";
   writeFileSync(
     caddyfilePath,
-    `${replacedLegacy.trimEnd()}${suffix}${marker}\n${importLine}\n`,
+    `${deduped.trimEnd()}${suffix}${marker}\n${importLine}\n`,
     "utf8"
   );
 }
@@ -59,9 +90,10 @@ function printCommandResult(result) {
   }
 }
 
-function runCommand(command, args) {
+function runCommand(command, args, options = {}) {
   const result = spawnSync(command, args, {
     encoding: "utf8",
+    stdio: options.stdio,
   });
 
   if (result.error) {
@@ -75,9 +107,8 @@ function caddyAdminUnavailable(result) {
   const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
 
   return (
-    (output.includes("http://localhost:2019/load") ||
-      output.includes("http://127.0.0.1:2019/load")) &&
-    output.includes("connect: connection refused")
+    output.includes("connect: connection refused") &&
+    (/[:[]2019(?:\]|\/|:).*\/load/.test(output) || output.includes(":2019"))
   );
 }
 
@@ -103,8 +134,9 @@ function ensureCaddyLoaded(caddyfilePath) {
     "[dev-localhost] Caddy is not running. Starting it now. You may be prompted once for your password so Caddy can finish local HTTPS setup."
   );
 
-  const start = runCommand("caddy", ["start", "--config", caddyfilePath]);
-  printCommandResult(start);
+  const start = runCommand("caddy", ["start", "--config", caddyfilePath], {
+    stdio: "inherit",
+  });
 
   if (start.status !== 0) {
     process.exit(start.status ?? 1);
