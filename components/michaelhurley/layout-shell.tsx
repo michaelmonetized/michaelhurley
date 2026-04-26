@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "@/components/link";
@@ -185,7 +185,7 @@ export function SiteNav() {
                 exit={{ x: "100%" }}
                 transition={menuTransition}
                 className="fixed inset-0 p-4x bg-crust z-[9091] flex flex-col md:flex-row gap-4x place-items-center place-content-center h-svh w-svw overflow-y-auto"
-                onClick={(event) => {
+                onClick={(event: React.MouseEvent<HTMLElement>) => {
                   event.stopPropagation();
                 }}
               >

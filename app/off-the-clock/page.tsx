@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { PageShell } from "@/components/michaelhurley/layout-shell";
 import { WaveText, MarkIcon } from "@/components/michaelhurley/shared";
 import { galleryCards } from "@/components/michaelhurley/data";
@@ -18,10 +19,12 @@ export default function OffTheClockPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2xl">
           {galleryCards.map((card) => (
             <div key={card.id} className="group relative overflow-hidden border-4 border-foreground aspect-square bg-muted/20">
-              <img 
-                src={card.screenshotSrc} 
+              <Image
+                src={card.screenshotSrc}
                 alt={card.title}
-                className="object-cover w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                fill
+                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-xl flex flex-col justify-end">
                 <h3 className="text-3xl font-black uppercase">{card.title}</h3>
