@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { PageShell } from "@/components/michaelhurley/layout-shell";
 import { WaveText, MarkIcon } from "@/components/michaelhurley/shared";
 import { galleryCards } from "@/components/michaelhurley/data";
@@ -37,10 +38,12 @@ export default function OffTheClockPage() {
               transition={{ delay: (index % 3) * 0.1 }}
               viewport={{ once: true }}
             >
-              <img 
+              <Image 
                 src={card.screenshotSrc} 
                 alt={card.title}
-                className="object-cover w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                fill
+                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-xl flex flex-col justify-end">
                 <h3 className="text-3xl font-black uppercase">{card.title}</h3>

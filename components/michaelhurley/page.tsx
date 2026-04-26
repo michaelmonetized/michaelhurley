@@ -2,12 +2,9 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useRef } from "react";
-<<<<<<< HEAD
-=======
+import { useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
->>>>>>> origin/main
 import {
   developmentGroups,
   galleryCards,
@@ -52,12 +49,10 @@ function getCalendarWeeksSince(startDate: Date, endDate = new Date()) {
 }
 
 function HomeNav() {
-  const menuStateRef = useRef<HTMLInputElement>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const closeMenu = () => {
-    if (menuStateRef.current) {
-      menuStateRef.current.checked = false;
-    }
+    setIsMenuOpen(false);
   };
 
   const menuLinks = [
@@ -92,16 +87,18 @@ function HomeNav() {
             <hr />
           </span>
           <input
-            ref={menuStateRef}
             type="checkbox"
             name="menu-state"
             className="menu-state"
+            checked={isMenuOpen}
             aria-label="Toggle site navigation"
+            onChange={(event) => setIsMenuOpen(event.target.checked)}
           />
         </label>
 
         <nav
           id="sheet-menu"
+          aria-hidden={!isMenuOpen}
           className="fixed inset-0 p-4x bg-crust z-50 flex gap-4x place-items-center place-content-center h-svh w-svw"
         >
           <div className="flex flex-wrap w-1/3">
@@ -115,7 +112,11 @@ function HomeNav() {
           <ul className="w-2/3 text-center uppercase p-xl">
             {menuLinks.map((link) => (
               <li key={link.href}>
-                <a href={link.href} onClick={closeMenu}>
+                <a
+                  href={link.href}
+                  onClick={closeMenu}
+                  tabIndex={isMenuOpen ? undefined : -1}
+                >
                   <WaveText text={link.label} className="text-7xl" />
                 </a>
               </li>
@@ -227,42 +228,6 @@ function HeroSection() {
 }
 
 function AnnouncementSection() {
-<<<<<<< HEAD
-  return (
-    <section
-      id="announcements"
-      className="text-center sticky inset-0 h-svh w-svw place-items-center place-content-center"
-    >
-      <div
-        id="announcements-icon"
-        className="fixed inset-0 h-svh w-svw place-content-center place-items-center"
-      >
-        <MarkIcon className="h-2x animate-fadeInUp" />
-        <p className="text-center">
-          <small>
-            <WaveText text="Message from Michael C Hurley" incoming />
-          </small>
-        </p>
-      </div>
-
-      <div
-        id="announcments-banner"
-        className="fixed inset-0 h-svh w-svw place-content-center place-items-center"
-      >
-        <div className="marquee-container text-7xl font-black text-center">
-          <div className="infinite-marquee marquee-direction-right" aria-hidden>
-            {Array.from({ length: 84 }, (_, index) => (
-              <span key={index}>&nbsp;I DID IT •&nbsp;</span>
-            ))}
-          </div>
-          <div className="infinite-marquee marquee-direction-left" aria-hidden>
-            {Array.from({ length: 6 }, (_, index) => (
-              <span key={index}>
-                BESTWNC LAUNCHED • UNCAP.US LAUNCHED • GETAT.ME LAUNCHED •
-                HURLEYUS LAUNCHED • REAFERRAL.com LAUNCHED •
-              </span>
-            ))}
-=======
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -310,7 +275,6 @@ function AnnouncementSection() {
                 </span>
               ))}
             </div>
->>>>>>> origin/main
           </div>
         </div>
 
@@ -412,7 +376,7 @@ function renderRoleHeader(roleEntry: TimelineRoleEntry) {
   const logo = roleEntry.logoSrc ? (
     <img
       src={roleEntry.logoSrc}
-      alt={`${roleEntry.company} logo`}
+      alt={roleEntry.logoAlt ?? `${roleEntry.company} logo`}
       className={roleEntry.logoClassName}
     />
   ) : null;
@@ -507,7 +471,7 @@ function TimelineCard({ entry }: { entry: TimelineEntry }) {
         <p>
           <img
             src={roleEntry.logoSrc}
-            alt={`${roleEntry.company} logo`}
+            alt={roleEntry.logoAlt ?? `${roleEntry.company} logo`}
             className={roleEntry.logoClassName}
           />
         </p>
@@ -542,21 +506,6 @@ function TimelineSection() {
 }
 
 function ClockSection() {
-<<<<<<< HEAD
-  const clockImageStyle = {
-    width: "100%",
-    height: "auto",
-    alignSelf: "end",
-    placeSelf: "end",
-    justifySelf: "end",
-    marginTop: "auto",
-  } as CSSProperties;
-
-  return (
-    <section id="clock">
-      <div id="calendar" className="absolute top-0" aria-hidden />
-      <div className="grid grid-cols-4 place-items-stretch place-content-stretch uppercase">
-=======
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -568,17 +517,13 @@ function ClockSection() {
 
   return (
     <section ref={containerRef} id="clock">
+      <div id="calendar" aria-hidden />
       <div className="grid grid-cols-4 place-items-stretch place-content-stretch uppercase h-svh w-svw overflow-hidden">
->>>>>>> origin/main
         <div className="flex flex-col place-items-end place-content-end grow">
           <motion.img
             className="w-full h-auto"
             src="/profile/michael-off.png"
-<<<<<<< HEAD
-            style={clockImageStyle}
-=======
             style={{ x: leftX }}
->>>>>>> origin/main
             alt="Michael Hurley off the clock"
           />
         </div>
@@ -608,11 +553,7 @@ function ClockSection() {
           <motion.img
             className="w-full h-auto"
             src="/profile/michael-right.png"
-<<<<<<< HEAD
-            style={clockImageStyle}
-=======
             style={{ x: rightX }}
->>>>>>> origin/main
             alt="Michael Hurley on the clock"
           />
         </div>
@@ -638,21 +579,12 @@ function SkillsSection({ averageWorkHours }: { averageWorkHours: string }) {
       >
         <img
           src="/profile/photos/sky.jpeg"
-<<<<<<< HEAD
-          className="block object-cover h-svh w-svw object-left-bottom"
-          style={{ filter: "blur(8px)", opacity: 0.6 }}
-=======
           className="block object-cover h-svh w-svw object-left-bottom blur-md"
->>>>>>> origin/main
           alt=""
         />
       </motion.div>
 
-<<<<<<< HEAD
-      <div className="flex jesitify-end items-stretch relative p-xl">
-=======
       <div className="flex justify-end items-stretch relative p-xl -mt-[100svh]">
->>>>>>> origin/main
         <div
           id="on-the-clock"
           className="w-1/2 flex flex-col gap-xl p-xl avoid-navbar ml-auto bg-background/40 backdrop-blur-sm"
@@ -710,24 +642,22 @@ function GalleryProjectCard({
   liveUrl,
   repoUrl,
   screenshotSrc,
+  subtitle,
   title,
 }: {
   accent: string;
   liveUrl: string;
   repoUrl: string;
   screenshotSrc: string;
+  subtitle: string;
   title: string;
 }) {
   return (
-<<<<<<< HEAD
-    <div className="gallery-item w-full" style={{ "--hover-color": accent } as CSSProperties}>
-=======
     <motion.div
       className="gallery-item w-full"
       style={{ "--hover-color": accent } as CSSProperties}
       whileHover={{ y: -10 }}
     >
->>>>>>> origin/main
       <div className="gallery-item-outer relative">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -759,29 +689,19 @@ function GalleryProjectCard({
 
         <div className="gallery-item-inner relative">
           <div className="gallery-item-screenshot relative">
-<<<<<<< HEAD
             <div className="gallery-item-screenshot-inner grid place-items-center place-content-center text-center">
-=======
-            <div className="gallery-item-screenshot-inner grid place-items-center center place-content-center text-center">
->>>>>>> origin/main
-              <div className="galler-ietm-links">
+              <div className="gallery-item-links">
                 <a
                   href={liveUrl}
                   target="_blank"
                   rel="noreferrer"
-<<<<<<< HEAD
                   aria-label={`${title} live site`}
-=======
->>>>>>> origin/main
                 />
                 <a
                   href={repoUrl}
                   target="_blank"
                   rel="noreferrer"
-<<<<<<< HEAD
                   aria-label={`${title} source code`}
-=======
->>>>>>> origin/main
                 />
               </div>
               <img src={screenshotSrc} className="block object-cover" alt={title} />
@@ -789,9 +709,6 @@ function GalleryProjectCard({
           </div>
 
           <div className="gallery-item-logo relative">
-<<<<<<< HEAD
-            <img src="/profile/bar-b-que-wagon.svg" alt="Bar-B-Que Wagon logo" />
-=======
             <div className="p-xl text-left flex flex-col justify-end min-h-[23rem]">
               <p className="text-sm uppercase tracking-[0.2em] text-foreground/70">
                 Frontend Hall of Fame
@@ -799,7 +716,6 @@ function GalleryProjectCard({
               <h3 className="text-3xl font-black">{title}</h3>
               <p className="max-w-[16rem] text-sm text-foreground/80">{subtitle}</p>
             </div>
->>>>>>> origin/main
           </div>
         </div>
       </div>
@@ -815,22 +731,14 @@ function GallerySection() {
           <h2 className="title font-black text-7xl uppercase">
             Frontend
             <br />
-            <small className="subttitle text-7xl text-primary">Hall of Fame</small>
+            <small className="subtitle text-7xl text-primary">Hall of Fame</small>
           </h2>
         </div>
         <div className="w-1/2 p-xl">
-<<<<<<< HEAD
-          <p>
-            From basic small local business websites to national brands and
-            global app designs. Michael Hurley&apos;s iconic engagement first
-            designs showcase his ability to tap into the psychology of
-            audiences to reach real goals.
-=======
           <p className="text-xl">
             From small local business websites to multi-surface product work,
             Michael Hurley&apos;s engagement-first design decisions are built to
             move people, not just decorate a screen.
->>>>>>> origin/main
           </p>
         </div>
       </div>
@@ -839,10 +747,6 @@ function GallerySection() {
         id="off-the-clock"
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-xl"
       >
-<<<<<<< HEAD
-        {groupedGalleryCards.map((column, columnIndex) => (
-          <div key={columnIndex} className="gallery-column flex flex-col gap-xl w-full">
-=======
         {groupedGalleryCards.map((column, colIndex) => (
           <div
             key={colIndex}
@@ -851,7 +755,6 @@ function GallerySection() {
               colIndex % 2 !== 0 && "md:pt-[300px]"
             )}
           >
->>>>>>> origin/main
             {column.map((card) => (
               <GalleryProjectCard
                 key={card.id}
@@ -859,6 +762,7 @@ function GallerySection() {
                 liveUrl={card.liveUrl}
                 repoUrl={card.repoUrl}
                 screenshotSrc={card.screenshotSrc}
+                subtitle={card.subtitle}
                 title={card.title}
               />
             ))}

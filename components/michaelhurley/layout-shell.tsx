@@ -2,11 +2,8 @@
 "use client";
 
 import * as React from "react";
-<<<<<<< HEAD
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-=======
->>>>>>> origin/main
 import { cn } from "@/lib/utils";
 import Link from "@/components/link";
 import { menuImages } from "@/components/michaelhurley/data";
@@ -70,7 +67,6 @@ function MenuLinkItem({
 }
 
 export function SiteNav() {
-<<<<<<< HEAD
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
@@ -88,10 +84,6 @@ export function SiteNav() {
           { href: "/off-the-clock", kind: "route", label: "Off the clock" },
           { href: "/calendar", kind: "route", label: "Calendar" },
         ];
-
-  React.useEffect(() => {
-    setIsMenuOpen(false);
-  }, [pathname]);
 
   React.useEffect(() => {
     if (!isMenuOpen) return;
@@ -115,9 +107,6 @@ export function SiteNav() {
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
-=======
-  const [isOpen, setIsOpen] = React.useState(false);
->>>>>>> origin/main
 
   return (
     <section
@@ -141,7 +130,6 @@ export function SiteNav() {
       </div>
 
       <div id="menu">
-<<<<<<< HEAD
         <button
           type="button"
           aria-expanded={isMenuOpen}
@@ -184,7 +172,6 @@ export function SiteNav() {
               onClick={closeMenu}
             >
               <motion.nav
-                id="sheet-menu"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Site navigation"
@@ -192,8 +179,8 @@ export function SiteNav() {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={menuTransition}
-                className="fixed inset-0 p-4x bg-crust z-[9091] flex flex-col md:flex-row gap-4x place-items-center place-content-center h-svh w-svw overflow-y-auto"
-                onClick={(event) => {
+                className="fixed inset-y-0 right-0 p-4x bg-crust z-[9091] flex flex-col md:flex-row gap-4x place-items-center place-content-center h-svh w-full max-w-6xl overflow-y-auto shadow-2xl"
+                onClick={(event: React.MouseEvent<HTMLElement>) => {
                   event.stopPropagation();
                 }}
               >
@@ -235,47 +222,6 @@ export function SiteNav() {
             </motion.div>
           ) : null}
         </AnimatePresence>
-=======
-        <label className="menu-trigger relative animate-fadeInUp" style={{ "--fade-delay": "500ms" } as React.CSSProperties}>
-          <span className="menu-icon h-8x w-8x flex flex-col gap-xl p-xl border-foreground border-4 rounded-xl place-content-center block">
-            <hr />
-            <hr />
-          </span>
-          <input
-            type="checkbox"
-            name="menu-state"
-            className="menu-state"
-            checked={isOpen}
-            onChange={(e) => setIsOpen(e.target.checked)}
-          />
-        </label>
-        <nav
-          id="sheet-menu"
-          className="fixed inset-0 p-4x bg-crust z-50 flex gap-4x place-items-center place-content-center h-svh w-svw"
-        >
-          <div className="flex flex-wrap w-1/3">
-            {menuImages.map((image) => (
-              <div key={image.src} className="w-1/2 p-xl">
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  className={cn(image.className, "aspect-portrait object-cover")}
-                />
-              </div>
-            ))}
-          </div>
-
-          <ul className="w-2/3 text-center uppercase p-xl">
-            {menuLinks.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} onClick={() => setIsOpen(false)}>
-                  <WaveText text={link.label} className="text-7xl" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
->>>>>>> origin/main
       </div>
     </section>
   );

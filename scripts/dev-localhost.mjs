@@ -59,9 +59,10 @@ function printCommandResult(result) {
   }
 }
 
-function runCommand(command, args) {
+function runCommand(command, args, options = {}) {
   const result = spawnSync(command, args, {
     encoding: "utf8",
+    stdio: options.stdio,
   });
 
   if (result.error) {
@@ -75,9 +76,8 @@ function caddyAdminUnavailable(result) {
   const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
 
   return (
-    (output.includes("http://localhost:2019/load") ||
-      output.includes("http://127.0.0.1:2019/load")) &&
-    output.includes("connect: connection refused")
+    output.includes("connect: connection refused") &&
+    (/[:[]2019(?:\]|\/|:).*\/load/.test(output) || output.includes(":2019"))
   );
 }
 
@@ -103,8 +103,9 @@ function ensureCaddyLoaded(caddyfilePath) {
     "[dev-localhost] Caddy is not running. Starting it now. You may be prompted once for your password so Caddy can finish local HTTPS setup."
   );
 
-  const start = runCommand("caddy", ["start", "--config", caddyfilePath]);
-  printCommandResult(start);
+  const start = runCommand("caddy", ["start", "--config", caddyfilePath], {
+    stdio: "inherit",
+  });
 
   if (start.status !== 0) {
     process.exit(start.status ?? 1);
