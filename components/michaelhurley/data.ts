@@ -20,7 +20,6 @@ export type TimelineRoleEntry = {
   meta: string[];
   bullets: string[];
   logoSrc?: string;
-  logoAlt?: string;
   logoPlacement?: "header" | "footer";
   logoClassName?: string;
 };
@@ -221,7 +220,6 @@ export const timelineEntries: TimelineEntry[] = [
     kind: "role",
     company: "StudioTWLEVE",
     logoSrc: "/profile/photos/ny-2009.jpg",
-    logoAlt: "Michael Hurley in New York, 2009",
     logoPlacement: "header",
     logoClassName: "block aspect-video object-cover",
     meta: [
