@@ -1,18 +1,13 @@
- 
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import * as React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import Link from "@/components/link";
+import { menuImages } from "@/components/michaelhurley/data";
 import { WaveText, Wordmark } from "@/components/michaelhurley/shared";
-
-const menuPanels = [
-  { className: "bg-rosewater", label: "1" },
-  { className: "bg-peach", label: "2" },
-  { className: "bg-flamingo", label: "3" },
-  { className: "bg-lavender", label: "4" },
-] as const;
 
 const menuTransition = {
   duration: 0.6,
@@ -75,16 +70,20 @@ export function SiteNav() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
-  const menuLinks: MenuLink[] = [
-    {
-      href: pathname === "/" ? "#top" : "/",
-      kind: pathname === "/" ? "anchor" : "route",
-      label: "Home",
-    },
-    { href: "/on-the-clock", kind: "route", label: "On the clock" },
-    { href: "/off-the-clock", kind: "route", label: "Off the clock" },
-    { href: "/calendar", kind: "route", label: "Calendar" },
-  ];
+  const menuLinks: MenuLink[] =
+    pathname === "/"
+      ? [
+          { href: "#top", kind: "anchor", label: "Home" },
+          { href: "#on-the-clock", kind: "anchor", label: "On the clock" },
+          { href: "#off-the-clock", kind: "anchor", label: "Off the clock" },
+          { href: "#calendar", kind: "anchor", label: "Calendar" },
+        ]
+      : [
+          { href: "/", kind: "route", label: "Home" },
+          { href: "/on-the-clock", kind: "route", label: "On the clock" },
+          { href: "/off-the-clock", kind: "route", label: "Off the clock" },
+          { href: "/calendar", kind: "route", label: "Calendar" },
+        ];
 
   React.useEffect(() => {
     setIsMenuOpen(false);
@@ -99,8 +98,12 @@ export function SiteNav() {
       }
     };
 
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
+
     return () => {
+      document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isMenuOpen]);
@@ -181,22 +184,26 @@ export function SiteNav() {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={menuTransition}
-                className="fixed inset-0 p-4x bg-crust z-[9091] flex flex-col md:flex-row gap-4x place-items-center place-content-center h-svh w-svw"
+                className="fixed inset-0 p-4x bg-crust z-[9091] flex flex-col md:flex-row gap-4x place-items-center place-content-center h-svh w-svw overflow-y-auto"
                 onClick={(event) => {
                   event.stopPropagation();
                 }}
               >
-                <div className="grid w-full md:w-1/2 grid-cols-2 grid-rows-2 gap-xl h-[40svh] md:h-full">
-                  {menuPanels.map((panel) => (
+                <div className="flex flex-wrap w-full md:w-1/3">
+                  {menuImages.map((image, index) => (
                     <motion.div
-                      key={panel.label}
-                      initial={{ opacity: 0, scale: 0.94 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      transition={menuTransition}
-                      className={`${panel.className} aspect-portrait w-full grid place-content-center place-items-center text-center`}
+                      key={image.src}
+                      className="w-1/2 p-xl"
+                      initial={{ opacity: 0, scale: 0.94, y: 24 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.98, y: 12 }}
+                      transition={{ ...menuTransition, delay: index * 0.04 }}
                     >
-                      {panel.label}
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        className={cn(image.className, "block h-full w-full")}
+                      />
                     </motion.div>
                   ))}
                 </div>
@@ -206,7 +213,7 @@ export function SiteNav() {
                   animate="open"
                   exit="closed"
                   variants={listVariants}
-                  className="w-full md:w-1/2 text-center uppercase p-xl"
+                  className="w-full md:w-2/3 text-center uppercase p-xl"
                 >
                   {menuLinks.map((link) => (
                     <MenuLinkItem

@@ -219,9 +219,9 @@ export const timelineEntries: TimelineEntry[] = [
   {
     kind: "role",
     company: "StudioTWLEVE",
-    logoSrc:
-      "https://scontent-atl3-3.xx.fbcdn.net/v/t39.30808-6/472846169_10170866768300551_4974601193238017963_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=f798df&_nc_ohc=_-TQGqWWEK4Q7kNvwHwuzG3&_nc_oc=AdpgIoYC6NXS8ak1DYUgkqeLuz0uYNa8gMBwFQypOmMicWEIemZ8aGGh46Sugo_msU8ZnS_9Tb3kJzo2hpIClOeO&_nc_zt=23&_nc_ht=scontent-atl3-3.xx&_nc_gid=DJKHP7W01LXihvNVrP5skQ&_nc_ss=7a3a8&oh=00_Af06vC8C7-_3630N6had53BNCvhZiTHDZbhc2s7f82B9kg&oe=69DF4F3B",
+    logoSrc: "/profile/photos/ny-2009.jpg",
     logoPlacement: "header",
+    logoClassName: "block aspect-video object-cover",
     meta: [
       "Director, 01/2007 - 07/2010",
       "ANP: $50k - $387k",

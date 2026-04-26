@@ -1,9 +1,16 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CaretLineUpIcon } from "@phosphor-icons/react";
 
 export default function BackToTop() {
+  const pathname = usePathname();
+
+  if (pathname === "/") {
+    return null;
+  }
+
   return (
     <Button
       asChild
