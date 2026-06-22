@@ -1,0 +1,19 @@
+{
+  "repoId": "r176sr2nebm0vpq87x8jrvf7yx87na8c",
+  "owner": "uncap_user",
+  "name": "michaelhurley",
+  "originType": "native",
+  "legacy": {
+    "hasGitHub": true,
+    "hasGit": true
+  },
+  "defaults": {
+    "file": "public",
+    "fragment": "public",
+    "issue": "public",
+    "pullRequest": "public",
+    "branch": "public",
+    "comment": "public"
+  },
+  "headSha": ""
+}
